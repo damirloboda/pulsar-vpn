@@ -163,6 +163,7 @@ function frame(now) {
     s.p += (t - s.p) * k;
     if (Math.abs(t - s.p) < 0.0004) s.p = t;
   }
+  window.__p1 = scenes[0].p;   // the 3D laptop (laptop3d.js) follows the same progress
   renderOpen(scenes[0].p);
   renderApp(scenes[1].p);
   requestAnimationFrame(frame);

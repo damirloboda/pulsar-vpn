@@ -20,6 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <noscript><style>.rise { opacity: 1 !important; transform: none !important; } .cap, .scap { opacity: 1 !important; position: static !important; }</style></noscript>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pulsar VPN","operatingSystem":"Windows 10, Windows 11","applicationCategory":"SecurityApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Damir Loboda"}}
@@ -38,6 +39,7 @@
 <section class="scene scene-open" id="top" data-scene="open">
   <div class="pin">
     <div class="studio"></div>
+    <canvas class="gl" id="gl" aria-label="A laptop running Pulsar VPN"></canvas>
 
     <div class="intro" id="intro">
       <p class="eyebrow">Free VPN for Windows 10 &amp; 11</p>
@@ -159,12 +161,33 @@
 
 <!-- ============ 5. faq ============ -->
 <section class="faq" id="faq">
-  <h2 class="rise">Questions? Answers.</h2>
+  <div class="faq-head rise"><p class="eyebrow">FAQ</p><h2>Questions? <span>Answered.</span></h2></div>
   <div class="qs">
-    <details class="rise"><summary>Is Pulsar really free?</summary><p>Yes. No account, no subscription, no ads. It connects you to free networks run by Cloudflare (WARP), the non-profit Riseup, and the VPN Gate academic project.</p></details>
-    <details class="rise"><summary>Does Pulsar collect my data?</summary><p>The app itself sends nothing to us. Your traffic goes through the network you connect to — Cloudflare, Riseup or VPN Gate — under their own policies.</p></details>
-    <details class="rise"><summary>Will it make my internet faster?</summary><p>A VPN can’t be faster than your own internet plan. Pulsar picks the closest, quickest server so you lose as little as possible — usually almost nothing.</p></details>
-    <details class="rise"><summary>Why does it ask for administrator rights?</summary><p>Creating a VPN tunnel changes how Windows routes network traffic, which only an administrator may do. On first use Pulsar may install the free Cloudflare WARP or OpenVPN engine.</p></details>
+    <details class="q rise" style="--qc:142,125,255">
+      <summary><span class="qi qi-gift"><svg viewBox="0 0 24 24"><path class="lidp" d="M3.5 8.5h17v3.2h-17z"/><path d="M5 11.7V20h14v-8.3"/><path d="M12 8.5V20"/><path class="bow" d="M12 8.5C10.4 5 6.8 4.6 6.9 7c.1 1.5 2.6 1.5 5.1 1.5zm0 0c1.6-3.5 5.2-3.9 5.1-1.5-.1 1.5-2.6 1.5-5.1 1.5z"/></svg></span>
+        <span class="qt">Is Pulsar really free?</span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qa"><p>Yes &mdash; <b>completely</b>. No account, no subscription, no ads, no trial. It connects you to free networks run by Cloudflare (WARP), the non-profit Riseup, and the VPN Gate academic project.</p></div>
+    </details>
+    <details class="q rise" style="--qc:62,240,176">
+      <summary><span class="qi qi-lock"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.6"/><path class="shackle" d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/><path d="M12 14.6v2"/></svg></span>
+        <span class="qt">Does Pulsar collect my data?</span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qa"><p>The app itself sends <b>nothing</b> to us. Your traffic goes through the network you connect to &mdash; Cloudflare, Riseup or VPN Gate &mdash; under their own policies.</p></div>
+    </details>
+    <details class="q rise" style="--qc:79,179,255">
+      <summary><span class="qi qi-gauge"><svg viewBox="0 0 24 24"><path d="M3.6 17a8.6 8.6 0 1 1 16.8 0"/><path d="M12 6.6v1.6M6.6 9.2l1.1 1.1M17.4 9.2l-1.1 1.1"/><path class="needle" d="M12 17l3.8-4.6"/><circle cx="12" cy="17" r="1.3" fill="currentColor" stroke="none"/></svg></span>
+        <span class="qt">Will it make my internet faster?</span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qa"><p>A VPN can&rsquo;t be faster than your own internet plan. Pulsar picks the <b>closest, quickest server</b> so you lose as little as possible &mdash; usually almost nothing.</p></div>
+    </details>
+    <details class="q rise" style="--qc:190,140,255">
+      <summary><span class="qi qi-shield"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.4c0 4.7-3.1 8.4-7.5 10-4.4-1.6-7.5-5.3-7.5-10V6z"/><path class="tick" d="M8.6 12.3l2.4 2.4 4.6-4.8"/></svg></span>
+        <span class="qt">Why does it ask for administrator rights?</span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qa"><p>Creating a VPN tunnel changes how Windows routes network traffic, which only an <b>administrator</b> may do. On first use Pulsar may install the free Cloudflare WARP or OpenVPN engine.</p></div>
+    </details>
+    <details class="q rise" style="--qc:255,181,71">
+      <summary><span class="qi qi-warn"><svg viewBox="0 0 24 24"><g class="tri"><path d="M10.3 4.3L2.9 17.6A2 2 0 0 0 4.6 20.6h14.8a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 9.4v4.2M12 16.9h.01"/></g><g class="ok"><circle cx="12" cy="12" r="8.6"/><path d="M8.3 12.3l2.6 2.6 5-5.2"/></g></svg></span>
+        <span class="qt">Why does Windows warn me?</span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qa"><p>Windows shows that message for apps that aren&rsquo;t signed with a paid certificate. Pulsar is independently made &mdash; click <b>More info</b>, then <b>Run anyway</b>.</p></div>
+    </details>
   </div>
 </section>
 </main>
@@ -177,5 +200,6 @@
 <script src="config.js"></script>
 <script src="main.js"></script>
 <script src="stats.js"></script>
+<script type="module" src="laptop3d.js"></script>
 </body>
 </html>
