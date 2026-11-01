@@ -6,24 +6,7 @@ const C = window.PULSAR || {};
 const DOWNLOAD_URL = C.owner
   ? `https://github.com/${C.owner}/${C.repo}/releases/latest/download/PulsarVPN.exe`
   : "#";
-document.querySelectorAll("[data-download]").forEach((a) => {
-  a.href = DOWNLOAD_URL;
-  a.addEventListener("click", () => {
-    // visitor analytics (GoatCounter): record the click as a "download" event
-    if (window.goatcounter && window.goatcounter.count) {
-      window.goatcounter.count({ path: "download", title: "Download PulsarVPN.exe", event: true });
-    }
-  });
-});
-
-/* ---------- visitor analytics (cookieless GoatCounter, only if configured) ---------- */
-if (C.goatcounter) {
-  const s = document.createElement("script");
-  s.async = true;
-  s.src = "https://gc.zgo.at/count.js";
-  s.dataset.goatcounter = `https://${C.goatcounter}.goatcounter.com/count`;
-  document.head.appendChild(s);
-}
+document.querySelectorAll("[data-download]").forEach((a) => { a.href = DOWNLOAD_URL; });
 
 /* ---------- nav border on scroll ---------- */
 const nav = document.getElementById("nav");
@@ -70,4 +53,62 @@ if (st) {
   };
   addEventListener("scroll", light, { passive: true });
   light();
+}
+
+
+/* ---------- motion: one rAF loop, transform-only, eased toward pointer/scroll targets ---------- */
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fine = matchMedia("(pointer: fine)").matches;
+const progress = document.getElementById("progress");
+const device = document.querySelector(".device");
+const glow = document.querySelector(".hero-glow");
+let px = 0, py = 0, tx = 0, ty = 0;           // pointer target / eased, -1..1
+let sy = scrollY, ey = scrollY;               // scroll target / eased
+
+addEventListener("pointermove", (e) => {
+  tx = e.clientX / innerWidth * 2 - 1;
+  ty = e.clientY / innerHeight * 2 - 1;
+}, { passive: true });
+addEventListener("scroll", () => { sy = scrollY; }, { passive: true });
+
+function frame() {
+  px += (tx - px) * 0.08; py += (ty - py) * 0.08;
+  ey += (sy - ey) * 0.12;
+  const max = document.documentElement.scrollHeight - innerHeight;
+  progress.style.transform = `scaleX(${max > 0 ? ey / max : 0})`;
+  if (device && innerWidth > 880) {
+    // the app window leans toward the cursor and settles flat as you scroll past
+    const s = Math.min(1, ey / innerHeight);
+    device.style.transform =
+      `translateY(${-s * 60}px) rotateY(${(-14 + px * 10) * (1 - s)}deg) rotateX(${(6 - py * 8) * (1 - s)}deg)`;
+    device.classList.add("live");
+  }
+  if (glow) glow.style.translate = `${px * 30}px ${py * 30 + ey * 0.25}px`;
+  requestAnimationFrame(frame);
+}
+if (!still) requestAnimationFrame(frame);
+
+/* cursor spotlight on cards */
+document.querySelectorAll(".tile, .steps li").forEach((el) => {
+  el.addEventListener("pointermove", (e) => {
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  });
+});
+
+/* magnetic download buttons */
+if (fine && !still) {
+  document.querySelectorAll(".btn-primary, .nav-dl").forEach((b) => {
+    b.addEventListener("pointermove", (e) => {
+      const r = b.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      b.style.transition = "transform .15s linear, box-shadow .4s";
+      b.style.transform = `translate(${dx * 0.18}px, ${dy * 0.3}px) scale(1.04)`;
+    });
+    b.addEventListener("pointerleave", () => {
+      b.style.transition = "";
+      b.style.transform = "";
+    });
+  });
 }

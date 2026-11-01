@@ -40,9 +40,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 /* ---------- hero ---------- */
 .hero { position: relative; min-height: 100vh; padding: 130px 24px 80px; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; max-width: 1120px; margin: 0 auto; }
 .hero-glow {
-  position: absolute; z-index: -1; width: 900px; height: 900px; right: -260px; top: -120px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 40% 40%, rgba(142, 125, 255, .35), transparent 55%), radial-gradient(circle at 65% 65%, rgba(62, 240, 176, .18), transparent 55%);
-  filter: blur(40px); animation: float 14s ease-in-out infinite alternate;
+  position: absolute; z-index: -1; width: 1000px; height: 1000px; right: -300px; top: -160px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 40% 40%, rgba(142, 125, 255, .32), transparent 50%), radial-gradient(circle at 65% 65%, rgba(62, 240, 176, .16), transparent 52%);
+  animation: float 14s ease-in-out infinite alternate; will-change: transform;
 }
 @keyframes float { to { transform: translate(-60px, 40px) scale(1.08); } }
 .eyebrow { font-size: 17px; font-weight: 600; color: var(--a3); margin-bottom: 14px; }
@@ -70,7 +70,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
   box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 120px rgba(80, 60, 220, .45), 0 20px 50px rgba(0, 0, 0, .6);
   transform: rotateY(-14deg) rotateX(6deg); transition: transform 1.2s var(--ease);
 }
-.device-wrap:hover .device { transform: rotateY(0) rotateX(0); }
+.device.live { transition: none; }
 .device-bar { height: 30px; display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 11.5px; color: rgba(255, 255, 255, .8); background: #1c1550; }
 .device-bar span { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, var(--a1) 50%, #2a1e8a); }
 .device-screen { position: relative; width: 340px; height: 631px; overflow: hidden; }
@@ -141,8 +141,58 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .reveal-device { opacity: 0; transform: translateY(80px) scale(.94); transition: opacity 1.4s var(--ease) .3s, transform 1.6s var(--ease) .3s; }
 .reveal-device.in { opacity: 1; transform: none; }
 
+/* headline: each line slides up from behind a mask, slightly blurred */
+.headline.reveal { opacity: 1; transform: none; }
+.headline .line { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+.headline .line > span { display: inline-block; transform: translateY(110%) rotate(4deg); transform-origin: 0 100%; filter: blur(8px); opacity: 0;
+  transition: transform 1.3s var(--ease), filter 1.1s var(--ease), opacity .9s var(--ease); }
+.headline .line:nth-child(2) > span { transition-delay: .12s; }
+.headline.in .line > span { transform: none; filter: none; opacity: 1; }
+
+/* ---------- ambient aurora (pre-softened gradients, transform-only motion) ---------- */
+.aurora { position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+.aurora i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; opacity: .5; will-change: transform; }
+.aurora i:nth-child(1) { left: -25vmax; top: -30vmax; background: radial-gradient(circle, rgba(142, 125, 255, .22), transparent 62%); animation: drift1 26s ease-in-out infinite alternate; }
+.aurora i:nth-child(2) { right: -30vmax; top: 20vh; background: radial-gradient(circle, rgba(79, 179, 255, .16), transparent 62%); animation: drift2 32s ease-in-out infinite alternate; }
+.aurora i:nth-child(3) { left: 10vw; bottom: -45vmax; background: radial-gradient(circle, rgba(62, 240, 176, .12), transparent 62%); animation: drift1 38s ease-in-out infinite alternate-reverse; }
+@keyframes drift1 { to { transform: translate(18vw, 22vh) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(-22vw, -12vh) scale(.9); } }
+
+/* scroll progress hairline */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 60; transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--a1), var(--a3), var(--a2)); }
+
+/* ---------- marquee ---------- */
+.marquee { margin: 140px 0 0; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
+.marquee .track { display: flex; align-items: center; gap: 34px; width: max-content; animation: marquee 34s linear infinite; }
+.marquee span { font-size: clamp(22px, 3vw, 34px); font-weight: 700; letter-spacing: -.03em; color: #3a3a40; white-space: nowrap; transition: color .4s; }
+.marquee span:hover { color: var(--fg); }
+.marquee b { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--a1), var(--a2)); flex: none; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ---------- cursor spotlight on cards ---------- */
+.tile::before, .steps li::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .5s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(142, 125, 255, .14), transparent 45%); }
+.tile:hover::before, .steps li:hover::before { opacity: 1; }
+.steps li { position: relative; overflow: hidden; transition: transform .6s var(--ease), border-color .4s; }
+.steps li:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, .16); }
+
+/* magnetic buttons glide back smoothly */
+.btn-primary, .nav-dl { will-change: transform; }
+
+/* smooth FAQ open/close where the browser supports animating to auto height */
+:root { interpolate-size: allow-keywords; }
+.faq details::details-content { block-size: 0; overflow: hidden; opacity: 0; transition: block-size .55s var(--ease), opacity .45s var(--ease), content-visibility .55s allow-discrete; }
+.faq details[open]::details-content { block-size: auto; opacity: 1; }
+
+/* section titles rise with a soft blur */
+.section-title.reveal { filter: blur(10px); transition: opacity 1s var(--ease), transform 1.2s var(--ease), filter 1s var(--ease); }
+.section-title.reveal.in { filter: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-device { opacity: 1; transform: none; transition: none; }
+  .headline .line > span { transform: none; filter: none; opacity: 1; transition: none; }
+  .aurora i, .marquee .track { animation: none; }
   .hero-glow, .grad, .art-orb i, .art-switch span, .art-glass { animation: none; }
 }
 
