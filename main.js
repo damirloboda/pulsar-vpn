@@ -47,30 +47,56 @@ function countTo(el) {
 const scenes = [...document.querySelectorAll("[data-scene]")].map((el) => ({ el, p: 0 }));
 const target = (el) => { const r = el.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
 
-// scene 1: the laptop opens, the screen lights, then we fly into it
-const laptop = $("#laptop"), lid = $("#lid"), screen = $("#screen"), intro = $("#intro"), lead = $("#lead"), lshadow = $("#lshadow");
+// scene 1: the laptop opens a crack of light, boots, then we fly into its screen
+const laptop = $("#laptop"), lid = $("#lid"), intro = $("#intro"), lead = $("#lead"), hint = $("#hint");
+const boot = $("#boot"), bootbar = $("#bootbar"), desk = $("#desk"), glare = $("#glare"), leak = $("#leak");
 const LW = 760, LH = 470;
 let fit = 1;
+
+// a real keyboard: six rows, wide modifiers, a long space bar
+const ROWS = [["", 13, "w15"], ["w15", 12, "w15"], ["w18", 11, "w22"], ["w22", 10, "w22"], ["", 3, "w6", 4]];
+$("#keys").innerHTML = [[0, 14]].concat(ROWS).map((r, i) => {
+  if (i === 0) return `<div class="krow" style="flex:.7">${'<i class="k"></i>'.repeat(14)}</div>`;
+  const [lead0, n, tail, n2] = r;
+  if (tail === "w6") return `<div class="krow">${'<i class="k"></i>'.repeat(n)}<i class="k w6"></i>${'<i class="k"></i>'.repeat(n2)}</div>`;
+  return `<div class="krow">${lead0 ? `<i class="k ${lead0}"></i>` : ""}${'<i class="k"></i>'.repeat(n)}<i class="k ${tail}"></i></div>`;
+}).join("");
+
+// the title arrives letter by letter
+const word = $("#word");
+word.innerHTML = [...word.textContent].map((c, i) => `<span class="ch" style="--i:${i}">${c}</span>`).join("");
+
 function renderOpen(p) {
   const open = easeOut(range(p, 0.03, 0.4));
-  const zoom = smooth(range(p, 0.5, 0.95));
-  // we look down at the laptop (theta); the lid opens until it faces us, then both flatten for the fly-in
+  const zoom = smooth(range(p, 0.55, 0.95));
+  // we look down at the laptop (theta); the lid starts a crack open and opens until it faces us
   const theta = (32 - 16 * open) * (1 - zoom);
-  lid.style.transform = `rotateX(${(-90 + 106 * open) * (1 - zoom)}deg)`;
-  // zoom until the screen (lid minus its bezel) covers the viewport
+  const lidDeg = (-84 + 100 * open) * (1 - zoom);
+  lid.style.transform = `rotateX(${lidDeg}deg)`;
   // phones: fill the width, so the app on the screen stays in view
-  const Z = innerWidth <= 760 ? innerWidth / ((LW - 26) * fit) : Math.max(innerWidth / ((LW - 26) * fit), innerHeight / ((LH - 35) * fit)) * 1.02;
+  const Z = innerWidth <= 760 ? innerWidth / ((LW - 22) * fit) : Math.max(innerWidth / ((LW - 22) * fit), innerHeight / ((LH - 41) * fit)) * 1.02;
   const scale = fit * (1 + (Z - 1) * zoom);
   laptop.style.transform = `translateY(${(1 - open) * 5}vh) rotateX(${-theta}deg) scale(${scale})`;
-  screen.style.setProperty("--on", smooth(range(p, 0.16, 0.38)).toFixed(3));
-  const gone = smooth(range(p, 0.08, 0.3));
+
+  // light: leaking from the gap, then the screen boots (logo, bar), then the desktop
+  const on = smooth(range(p, 0.14, 0.34));
+  laptop.style.setProperty("--on", on.toFixed(3));
+  leak.style.opacity = (0.9 * (1 - smooth(range(p, 0.02, 0.16)))).toFixed(3);
+  const bootIn = smooth(range(p, 0.12, 0.2)), bootOut = smooth(range(p, 0.3, 0.38));
+  boot.style.opacity = (bootIn * (1 - bootOut)).toFixed(3);
+  bootbar.style.transform = `scaleX(${range(p, 0.17, 0.3).toFixed(3)})`;
+  desk.style.opacity = bootOut.toFixed(3);
+  desk.style.transform = `scale(${1.06 - 0.06 * bootOut})`;
+  glare.style.transform = `translateX(${(1 - open) * 30 - zoom * 25}%)`;
+
+  const gone = smooth(range(p, 0.04, 0.2));
   intro.style.opacity = 1 - gone;
   intro.style.transform = `translateY(${-70 * gone}px) scale(${1 - 0.06 * gone})`;
-  const show = smooth(range(p, 0.32, 0.42)) * (1 - smooth(range(p, 0.5, 0.58)));
+  hint.style.opacity = 1 - smooth(range(p, 0, 0.06));
+  const show = smooth(range(p, 0.34, 0.44)) * (1 - smooth(range(p, 0.52, 0.6)));
   lead.style.opacity = show;
   lead.style.transform = `translateY(${(1 - show) * 24}px)`;
   lead.style.pointerEvents = show > 0.5 ? "auto" : "none";
-  lshadow.style.opacity = open * (1 - zoom);
 }
 
 // scene 2: the app turns while three captions take turns; at the third it connects
@@ -111,11 +137,14 @@ addEventListener("resize", measure);
 measure();
 Object.assign(phone.style, { position: "absolute", left: "50%", top: "50%", margin: "-406px 0 0 -210px" });
 
-function frame() {
+let last = performance.now();
+function frame(now) {
+  const k = still ? 1 : 1 - Math.exp(-Math.min(0.05, (now - last) / 1000) * 10);  // same glide at 60 or 144 Hz
+  last = now;
   for (const s of scenes) {
     const t = target(s.el);
-    s.p += (t - s.p) * (still ? 1 : 0.16);
-    if (Math.abs(t - s.p) < 0.0005) s.p = t;
+    s.p += (t - s.p) * k;
+    if (Math.abs(t - s.p) < 0.0004) s.p = t;
   }
   renderOpen(scenes[0].p);
   renderApp(scenes[1].p);

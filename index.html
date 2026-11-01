@@ -40,16 +40,18 @@
   <div class="pin">
     <div class="intro" id="intro">
       <p class="eyebrow">Free for Windows 10 &amp; 11</p>
-      <h1>Pulsar</h1>
+      <h1 id="word">Pulsar</h1>
       <p class="tag">The fastest way out.</p>
     </div>
-    <div class="stage3d">
+    <div class="stage3d" id="stage3d">
       <div class="laptop" id="laptop">
         <div class="lid" id="lid">
+          <div class="lid-edge"></div>
           <div class="lid-out"><img src="icon.svg" alt=""></div>
           <div class="lid-in">
+            <i class="cam"></i>
             <div class="screen" id="screen">
-              <div class="desk">
+              <div class="desk" id="desk">
                 <div class="wall"></div>
                 <div class="appwin">
                   <div class="appbar"><img src="icon.svg" alt=""><b>Pulsar VPN</b><i>&#8211;</i><i>&#10005;</i></div>
@@ -57,15 +59,24 @@
                 </div>
                 <div class="taskbar"><span></span><span></span><span class="on"></span><span></span></div>
               </div>
-              <div class="glare"></div>
+              <div class="boot" id="boot"><img src="icon.svg" alt=""><span class="bootbar"><i id="bootbar"></i></span></div>
+              <div class="glare" id="glare"></div>
             </div>
+            <span class="chin">PULSAR</span>
           </div>
         </div>
-        <div class="deck"><div class="keys"></div><div class="pad"></div></div>
-        <div class="front"></div>
+        <div class="deck">
+          <div class="floor"></div>
+          <div class="hinge"></div>
+          <div class="grille l"></div><div class="grille r"></div>
+          <div class="keys" id="keys"></div>
+          <div class="pad"></div>
+          <div class="leak" id="leak"></div>
+          <div class="front"><i></i></div>
+        </div>
       </div>
-      <div class="shadow" id="lshadow"></div>
     </div>
+    <p class="hint" id="hint">Scroll to open<i></i></p>
     <div class="lead" id="lead">
       <a class="buy big" href="#" data-download>Download for Windows</a>
       <span>Free · 11 MB · No account</span>
