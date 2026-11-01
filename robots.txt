@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /demo/
+Disallow: /styles/
 
 Sitemap: https://damirloboda.github.io/pulsar-vpn/sitemap.xml
