@@ -42,10 +42,13 @@ function radialTexture(stops, size = 256) {
 
 function start() {
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" }); }
+  const small = Math.min(innerWidth, innerHeight) < 600 || !matchMedia("(pointer: fine)").matches;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: !small, alpha: true, powerPreference: "high-performance" }); }
   catch (_) { canvas.remove(); return; }
   document.body.classList.add("gl3d");
-  renderer.setPixelRatio(Math.min(1.75, devicePixelRatio || 1));
+  // resolution adapts to the machine: start modest, drop further if frames run long
+  let dpr = Math.min(small ? 1.25 : 1.5, devicePixelRatio || 1);
+  renderer.setPixelRatio(dpr);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -57,12 +60,12 @@ function start() {
 
   // ---------- materials ----------
   // anodised space-grey aluminium: satin, with the studio's reflections kept soft so it reads as metal, not white plastic
-  const alu = new THREE.MeshPhysicalMaterial({ color: 0x6f727a, metalness: 1, roughness: 0.42, clearcoat: 0.2, clearcoatRoughness: 0.5, envMapIntensity: 0.62 });
-  const aluDark = new THREE.MeshPhysicalMaterial({ color: 0x55575e, metalness: 1, roughness: 0.42 });
+  const alu = new THREE.MeshStandardMaterial({ color: 0x6f727a, metalness: 1, roughness: 0.4, envMapIntensity: 0.66 });
+  const aluDark = new THREE.MeshStandardMaterial({ color: 0x55575e, metalness: 1, roughness: 0.42 });
   const well = new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.8 });
   const keyMat = new THREE.MeshStandardMaterial({ color: 0x131315, roughness: 0.5, metalness: 0.2 });
-  const glassBlack = new THREE.MeshPhysicalMaterial({ color: 0x020203, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02 });
-  const pad = new THREE.MeshPhysicalMaterial({ color: 0x5d6068, metalness: 0.6, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 0.6 });
+  const glassBlack = new THREE.MeshStandardMaterial({ color: 0x020203, roughness: 0.08, metalness: 0.4 });
+  const pad = new THREE.MeshStandardMaterial({ color: 0x5d6068, metalness: 0.6, roughness: 0.2, envMapIntensity: 0.6 });
 
   // ---------- the laptop (≈ a 15" machine, units are decimetres) ----------
   const W = 3.2, D = 2.2, T = 0.085, LT = 0.045, LD = 2.12;
@@ -126,10 +129,6 @@ function start() {
   const dispMat = new THREE.MeshBasicMaterial({ map: uiTex, toneMapped: false, color: 0x000000 });
   const display = new THREE.Mesh(new THREE.PlaneGeometry(dispW, dispH).rotateX(Math.PI / 2), dispMat);
   display.position.set(0, -0.003, 0.07); lid.add(display);
-  // a faint glass sheen over the display
-  const sheen = new THREE.Mesh(new THREE.PlaneGeometry(dispW, dispH).rotateX(Math.PI / 2), new THREE.MeshPhysicalMaterial({ color: 0x000000, transparent: true, opacity: 0.18, roughness: 0.04, metalness: 0, clearcoat: 1 }));
-  sheen.position.set(0, -0.0036, 0.07); lid.add(sheen);
-  const screenLight = new THREE.PointLight(0x8e7dff, 0, 5, 2); screenLight.position.set(0, -0.5, 0.2); lid.add(screenLight);
 
   // the logo on the back of the lid
   const logoImg = new Image(); logoImg.src = "icon.svg";
@@ -262,12 +261,20 @@ function start() {
   addEventListener("resize", resize); resize();
 
   const violet = new THREE.Color(0x8e7dff), green = new THREE.Color(0x3ef0b0), glowCol = new THREE.Color();
-  let first = true;
+  let first = true, lastP = -1, lastDraw = 0, slow = 0, frames = 0, prevNow = 0, prevMoving = false;
   function frame(now) {
     requestAnimationFrame(frame);
     const host = canvas.parentElement.getBoundingClientRect();
-    if (host.bottom < 0 || host.top > innerHeight) return;
+    if (host.bottom < 0 || host.top > innerHeight || document.hidden) return;
     const p = window.__p1 || 0, t = now / 1000, aspect = camera.aspect;
+    // render only when something moves: scrolling, the idle drift at the top (30 fps is plenty), the racing screen
+    const moving = p !== lastP, idleTop = p < 0.26, racing = p > 0.38 && p < 0.6;
+    const gapOk = prevNow; prevNow = now; const wasMoving = prevMoving; prevMoving = moving;
+    if (!first && !moving && !((idleTop || racing) && now - lastDraw > 33)) return;
+    // frames that take too long lower the resolution a step, down to 1x (0.75x on phones)
+    if (moving && wasMoving && gapOk && now - gapOk < 100) { frames++; if (now - gapOk > 24) slow++; }
+    if (frames >= 45) { if (slow > 18 && dpr > (small ? 0.75 : 1)) { dpr = Math.max(small ? 0.75 : 1, dpr - 0.25); renderer.setPixelRatio(dpr); resize(); } frames = slow = 0; }
+    lastP = p; lastDraw = now;
 
     const o = range(p, 0.02, 0.24), open = settle(o), zoom = smooth(range(p, 0.8, 0.98));
     // it starts half open with the screen already lit, so the first frame shows light, not a closed slab
@@ -277,7 +284,6 @@ function start() {
     dispMat.color.setScalar(on);
     backlight.material.color.copy(glowCol); backlight.material.opacity = on * 0.85;
     deskGlow.material.color.copy(glowCol); deskGlow.material.opacity = on * 0.4;
-    screenLight.color.copy(glowCol); screenLight.intensity = on * 6;
     const state = p < 0.4 ? "off" : p < 0.58 ? "scan" : "on";
     draw(false, state, range(p, 0.4, 0.56), smooth(range(p, 0.44, 0.58)), t);
 

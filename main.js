@@ -79,7 +79,6 @@ function setState(s, scanT) {
 function caption(el, a) {
   el.style.opacity = a.toFixed(3);
   el.style.transform = `translateY(${((1 - a) * 26).toFixed(1)}px)`;
-  el.style.filter = a > 0.98 || a < 0.02 ? "none" : `blur(${((1 - a) * 8).toFixed(1)}px)`;
   el.style.visibility = a < 0.01 ? "hidden" : "visible";
 }
 
@@ -89,11 +88,12 @@ function renderOpen(p) {
   const zoom = smooth(range(p, 0.8, 0.98));
   const theta = lerp(34, 15, easeOut(o)) * (1 - zoom);           // how far we look down at it
   const phi = lerp(innerWidth <= 760 ? -8 : -14, 0, smooth(range(p, 0.0, 0.26))) * (1 - zoom);
-  lid.style.transform = `rotateX(${(lerp(-84, 15, open)) * (1 - zoom)}deg)`;
+  const css3d = !document.body.classList.contains("gl3d");
+  if (css3d) lid.style.transform = `rotateX(${(lerp(-84, 15, open)) * (1 - zoom)}deg)`;
   const Z = innerWidth <= 760 ? innerWidth / ((LW - 22) * fit) : Math.max(innerWidth / ((LW - 22) * fit), innerHeight / ((LH - 41) * fit)) * 1.02;
   const rise = lerp(-17, 0, easeOut(o));   // closed, it sits higher so all of it is in view
-  laptop.style.transform = `translateY(${rise}vh) rotateX(${-theta}deg) rotateY(${phi}deg) scale(${fit * lerp(innerHeight < 720 ? 0.58 : 0.68, 1, easeOut(o)) * (1 + (Z - 1) * zoom)})`;   // it also comes closer as it opens
-  glare.style.transform = `translateX(${(1 - easeOut(o)) * 34 - zoom * 30}%)`;
+  if (css3d) laptop.style.transform = `translateY(${rise}vh) rotateX(${-theta}deg) rotateY(${phi}deg) scale(${fit * lerp(innerHeight < 720 ? 0.58 : 0.68, 1, easeOut(o)) * (1 + (Z - 1) * zoom)})`;   // it also comes closer as it opens
+  if (css3d) glare.style.transform = `translateX(${(1 - easeOut(o)) * 34 - zoom * 30}%)`;
 
   // screen light; its colour turns from violet to green once protected
   laptop.style.setProperty("--on", smooth(range(p, 0.12, 0.22)).toFixed(3));
@@ -130,7 +130,6 @@ function renderApp(p) {
     if (i === n - 1) a = smooth(range(local, -0.04, 0.16));
     c.style.opacity = a.toFixed(3);
     c.style.transform = `translateY(${(0.45 - clamp(local, -0.3, 1.3)) * 44}px)`;
-    c.style.filter = a > 0.98 || a < 0.02 ? "none" : `blur(${((1 - a) * 8).toFixed(1)}px)`;
   });
   const idx = Math.min(n - 1, Math.floor(p * n));
   dots.forEach((d, i) => d.classList.toggle("on", i === idx));
@@ -154,8 +153,9 @@ function measure() {
 addEventListener("resize", measure);
 measure();
 
-let last = performance.now();
+let last = performance.now(), drawn = [-1, -1];
 function frame(now) {
+  requestAnimationFrame(frame);
   const k = still ? 1 : 1 - Math.exp(-Math.min(0.05, (now - last) / 1000) * 9);   // same glide at 60 or 144 Hz
   last = now;
   for (const s of scenes) {
@@ -164,15 +164,17 @@ function frame(now) {
     if (Math.abs(t - s.p) < 0.0004) s.p = t;
   }
   window.__p1 = scenes[0].p;   // the 3D laptop (laptop3d.js) follows the same progress
-  renderOpen(scenes[0].p);
-  renderApp(scenes[1].p);
-  requestAnimationFrame(frame);
+  // only touch the page when a scene has actually moved
+  if (scenes[0].p !== drawn[0]) { renderOpen(scenes[0].p); drawn[0] = scenes[0].p; }
+  if (scenes[1].p !== drawn[1]) { renderApp(scenes[1].p); drawn[1] = scenes[1].p; }
 }
 requestAnimationFrame(frame);
 
 /* ---------- the demo app's liquid wallpaper sleeps while off-screen ---------- */
 document.querySelectorAll("iframe[src*='demo/']").forEach((f) => {
   new IntersectionObserver(([e]) => {
+    // let its wallpaper paint for a moment, then hold it still so the glass on top never re-blurs
     try { f.contentWindow.eval(`typeof Liquid !== "undefined" && Liquid.pause(${!e.isIntersecting})`); } catch (_) {}
+    if (e.isIntersecting) setTimeout(() => { try { f.contentWindow.eval(`typeof Liquid !== "undefined" && Liquid.pause(true)`); } catch (_) {} }, 1200);
   }).observe(f);
 });

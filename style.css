@@ -27,7 +27,7 @@ section { scroll-margin-top: 52px; }
 
 /* ---------- product bar ---------- */
 .pbar { position: sticky; top: 0; z-index: 50; height: 52px; display: flex; align-items: center; gap: 24px; padding: 0 max(22px, calc(50% - 490px));
-  background: rgba(22, 22, 23, .72); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid rgba(255, 255, 255, .08); }
+  background: rgba(14, 14, 16, .92); border-bottom: 1px solid rgba(255, 255, 255, .08); }
 .pname { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 600; letter-spacing: -.02em; margin-right: auto; }
 .pname img { width: 24px; height: 24px; border-radius: 6px; }
 .pbar nav { display: flex; gap: 24px; font-size: 12.5px; color: #d2d2d7; }
@@ -69,7 +69,7 @@ section { scroll-margin-top: 52px; }
 .intro h1 { margin-top: 8px; font-size: clamp(54px, min(9vw, 15vh), 150px); font-weight: 700; letter-spacing: -.055em; line-height: .95; perspective: 600px; }
 .intro h1 .ch { display: inline-block; background: linear-gradient(180deg, #fff 30%, #a9a9b4); -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: chIn 1.2s var(--ease) both; animation-delay: calc(var(--i) * 45ms + 100ms); }
-@keyframes chIn { from { opacity: 0; transform: translateY(40%) rotateX(-60deg); filter: blur(8px); } }
+@keyframes chIn { from { opacity: 0; transform: translateY(40%) rotateX(-60deg); } }
 .intro .tag { margin-top: 14px; font-size: clamp(19px, min(2.2vw, 3.4vh), 30px); font-weight: 600; letter-spacing: -.02em;
   background: linear-gradient(95deg, #c3bbff, #74b8ff 50%, #6ff0c8); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .intro .eyebrow, .intro .tag { animation: stageIn 1.2s var(--ease) both; }
@@ -77,7 +77,7 @@ section { scroll-margin-top: 52px; }
 @keyframes stageIn { from { opacity: 0; translate: 0 50px; } }
 
 .scaps { position: absolute; z-index: 3; left: 0; right: 0; top: 8.5vh; height: 26vh; pointer-events: none; }
-.scap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 20px; opacity: 0; will-change: transform, opacity, filter; }
+.scap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 20px; opacity: 0; will-change: transform, opacity; }
 .scap h2 { margin-top: 8px; font-size: clamp(28px, min(4.2vw, 6vh), 60px); font-weight: 700; letter-spacing: -.045em; line-height: 1.05; max-width: 900px; }
 .scap .buy { margin-top: 18px; pointer-events: auto; }
 
@@ -193,7 +193,7 @@ section { scroll-margin-top: 52px; }
 /* ---------- scene 2: the app turns while captions change ---------- */
 .scene-app .pin { display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 52px max(28px, calc(50% - 560px)) 0; }
 .caps { position: relative; height: 340px; }
-.cap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; opacity: 0; will-change: transform, opacity, filter; }
+.cap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; opacity: 0; will-change: transform, opacity; }
 .cap h2 { margin-top: 10px; font-size: clamp(40px, 5.2vw, 72px); font-weight: 700; letter-spacing: -.045em; line-height: 1.02; }
 .cap > p:last-child { margin-top: 18px; font-size: 21px; line-height: 1.45; color: var(--gray); font-weight: 600; max-width: 460px; }
 .cap b { color: var(--fg); }
@@ -226,7 +226,8 @@ section { scroll-margin-top: 52px; }
 .free { padding: 180px 24px 40px; text-align: center; overflow: hidden; }
 .freeword { font-size: clamp(140px, 30vw, 440px); font-weight: 800; letter-spacing: -.07em; line-height: .85;
   background: linear-gradient(100deg, #8e7dff 0%, #4fb3ff 28%, #fff 45%, #3ef0b0 62%, #8e7dff 100%); background-size: 250% 100%;
-  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 6s linear infinite; }
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 6s linear infinite paused; }
+.freeword.in { animation-play-state: running; }
 @keyframes shine { to { background-position: -250% 0; } }
 .freesub { margin-top: 20px; font-size: clamp(21px, 2.2vw, 28px); font-weight: 600; color: var(--gray); letter-spacing: -.02em; }
 .freesub b { color: var(--fg); }
@@ -278,7 +279,7 @@ section { scroll-margin-top: 52px; }
 .qa p { padding: 0 26px 24px 94px; max-width: 780px; font-size: 16.5px; line-height: 1.6; color: #a1a1aa; font-weight: 500; }
 .qa b { color: rgb(var(--qc)); font-weight: 600; }
 .q[open] .qa p { animation: qaIn .7s var(--ease) both; }
-@keyframes qaIn { from { opacity: 0; transform: translateY(-8px); filter: blur(4px); } }
+@keyframes qaIn { from { opacity: 0; transform: translateY(-8px); } }
 .q::details-content { block-size: 0; overflow: hidden; transition: block-size .6s var(--ease), content-visibility .6s allow-discrete; }
 .q[open]::details-content { block-size: auto; }
 
