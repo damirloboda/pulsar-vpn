@@ -87,8 +87,6 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 
 /* ---------- stats ---------- */
 .stats { max-width: 1000px; margin: 40px auto 0; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
-.stat b { display: block; font-size: clamp(56px, 8vw, 96px); font-weight: 800; letter-spacing: -.05em; line-height: 1; background: linear-gradient(180deg, #fff, #8a8a95); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.stat span { display: block; margin-top: 10px; font-size: 15px; color: var(--dim); line-height: 1.4; }
 
 /* ---------- statement (words light up as you scroll) ---------- */
 .statement { max-width: 900px; margin: 160px auto; padding: 0 24px; }
@@ -323,3 +321,93 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .num { position: relative; z-index: 2; background: #1f1f25; color: var(--faint); transition: background .5s, color .5s, box-shadow .5s, transform .6s var(--ease); }
 .steps li.lit .num { background: linear-gradient(135deg, var(--a1), var(--a3)); color: #fff; box-shadow: 0 0 0 6px rgba(142, 125, 255, .15), 0 0 24px rgba(79, 179, 255, .6); transform: scale(1.08); }
 @media (max-width: 880px) { .steps::before, .steps::after { display: none; } .num { background: linear-gradient(135deg, var(--a1), var(--a3)); color: #fff; } }
+
+/* ---------- stats as animated cards ---------- */
+.stats { max-width: 1080px; text-align: left; gap: 18px; }
+.tile.mini { padding: 22px 24px 26px; }
+.tile.mini .art { height: 150px; margin-bottom: 18px; }
+.tile.mini .big { display: block; font-size: 64px; font-weight: 800; letter-spacing: -.05em; line-height: 1; background: linear-gradient(180deg, #fff, #8a8a95); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tile.mini .cap { display: block; margin-top: 8px; font-size: 15px; color: var(--dim); }
+
+/* 1 tap: a cursor taps the button, it turns green */
+.art-tap > * { grid-area: 1 / 1; }
+.tap-btn { position: relative; width: 70px; height: 70px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--a1) 45%, #2a1e8a); box-shadow: 0 10px 40px rgba(142, 125, 255, .5); animation: btnPress 4s var(--ease) infinite; }
+.tap-btn::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 35% 30%, #eafff7, var(--a2) 45%, #0b5a44); opacity: 0; animation: btnOn 4s var(--ease) infinite; }
+.tap-btn svg { position: relative; z-index: 1; width: 28px; height: 28px; stroke: #fff; stroke-width: 2.4; }
+.cursor { width: 30px; height: 30px; z-index: 2; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .5)); animation: tapCursor 4s var(--ease) infinite; }
+.art-tap .ripple, .art-dbl .ripple { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--a2); opacity: 0; animation: tapRipple 4s ease-out infinite; }
+.art-tap .ripple + .ripple { animation-delay: .25s; }
+@keyframes tapCursor { 0% { transform: translate(70px, 60px); opacity: 0; } 18% { transform: translate(14px, 18px); opacity: 1; } 27% { transform: translate(14px, 18px) scale(.8); } 33%, 70% { transform: translate(14px, 18px) scale(1); opacity: 1; } 85%, 100% { transform: translate(70px, 60px); opacity: 0; } }
+@keyframes btnPress { 0%, 26% { transform: scale(1); } 29% { transform: scale(.9); } 36%, 100% { transform: scale(1); } }
+@keyframes btnOn { 0%, 28% { opacity: 0; } 36%, 78% { opacity: 1; } 90%, 100% { opacity: 0; } }
+@keyframes tapRipple { 0%, 28% { transform: scale(1); opacity: 0; } 30% { opacity: .8; } 60%, 100% { transform: scale(2.3); opacity: 0; } }
+
+/* 3 networks: each one gets pinged, the fastest wins */
+.art-nets { display: flex; flex-direction: column; justify-content: center; gap: 8px; place-items: stretch; padding: 0 2px; }
+.net { position: relative; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; overflow: hidden;
+  background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .07); font-size: 13px; font-weight: 600; animation: netRow 6s var(--ease) infinite; }
+.net em { font-style: normal; flex: 1; }
+.net small { color: var(--dim); font-variant-numeric: tabular-nums; opacity: 0; animation: netMs 6s var(--ease) infinite; }
+.net b { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(79, 179, 255, .25), transparent); transform: translateX(-100%); animation: netScan 6s var(--ease) infinite; }
+.net:nth-child(2), .net:nth-child(2) small, .net:nth-child(2) b { animation-delay: .5s; }
+.net:nth-child(3), .net:nth-child(3) small, .net:nth-child(3) b { animation-delay: 1s; }
+.net:first-child { animation-name: netBest; }
+.net:first-child small { animation-name: netBestMs; }
+@keyframes netScan { 0% { transform: translateX(-100%); } 18%, 100% { transform: translateX(100%); } }
+@keyframes netMs { 0%, 14% { opacity: 0; } 22%, 88% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes netBestMs { 0%, 14% { opacity: 0; color: var(--dim); } 22%, 40% { opacity: 1; color: var(--dim); } 50%, 88% { opacity: 1; color: var(--a2); } 100% { opacity: 0; } }
+@keyframes netRow { 0%, 100% { opacity: 1; } }
+@keyframes netBest { 0%, 42% { border-color: rgba(255, 255, 255, .07); background: rgba(255, 255, 255, .04); box-shadow: none; }
+  52%, 88% { border-color: rgba(62, 240, 176, .45); background: rgba(62, 240, 176, .1); box-shadow: 0 0 24px rgba(62, 240, 176, .2); }
+  100% { border-color: rgba(255, 255, 255, .07); background: rgba(255, 255, 255, .04); box-shadow: none; } }
+
+/* 0 accounts: the sign-up form gets struck out */
+.art-zero > * { grid-area: 1 / 1; }
+.art-zero .form { position: relative; width: 170px; padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .08); display: flex; flex-direction: column; gap: 8px; animation: formFade 5s var(--ease) infinite; }
+.art-zero .form i { height: 14px; border-radius: 5px; background: rgba(255, 255, 255, .08); }
+.art-zero .form span { margin-top: 2px; font-size: 11px; font-weight: 700; text-align: center; padding: 6px; border-radius: 8px; background: rgba(255, 255, 255, .12); color: var(--dim); }
+.art-zero .form s { position: absolute; left: -8px; right: -8px; top: 50%; height: 3px; border-radius: 3px; background: #ff4d64; box-shadow: 0 0 12px rgba(255, 77, 100, .7);
+  transform: rotate(-14deg) scaleX(0); transform-origin: 0 50%; animation: strike 5s var(--ease) infinite; }
+.stamp { align-self: end; justify-self: end; margin: 0 6px 6px 0; font-size: 12px; font-weight: 800; letter-spacing: .02em; padding: 6px 11px; border-radius: 99px;
+  color: #04120c; background: var(--a2); box-shadow: 0 6px 24px rgba(62, 240, 176, .45); transform: scale(0) rotate(-8deg); animation: stamp 5s var(--ease) infinite; }
+@keyframes strike { 0%, 22% { transform: rotate(-14deg) scaleX(0); } 36%, 86% { transform: rotate(-14deg) scaleX(1); } 96%, 100% { transform: rotate(-14deg) scaleX(1); opacity: 0; } }
+@keyframes formFade { 0%, 34% { opacity: 1; } 44%, 86% { opacity: .45; } 100% { opacity: 1; } }
+@keyframes stamp { 0%, 40% { transform: scale(0) rotate(-8deg); } 48% { transform: scale(1.15) rotate(-8deg); } 54%, 86% { transform: scale(1) rotate(-8deg); } 96%, 100% { transform: scale(0) rotate(-8deg); } }
+
+/* ---------- steps: each gets a small scene ---------- */
+.steps li .art { height: 130px; margin-bottom: 18px; background: rgba(255, 255, 255, .025); border: 1px solid rgba(255, 255, 255, .05); }
+.steps::before, .steps::after { top: 198px; }
+.art-dl { align-content: center; justify-items: center; gap: 10px; }
+.art-dl .file { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(135deg, var(--a1), var(--a3)); box-shadow: 0 8px 24px rgba(79, 179, 255, .35); }
+.art-dl .file svg { width: 22px; height: 22px; stroke: #fff; stroke-width: 2.6; animation: dlArrow 3.6s var(--ease) infinite; }
+.art-dl .bar { width: 70%; height: 6px; border-radius: 6px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.art-dl .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--a1), var(--a3)); transform-origin: 0 50%; animation: dlFill 3.6s var(--ease) infinite; }
+.art-dl .pct { font-size: 11px; color: var(--faint); font-weight: 600; }
+@keyframes dlArrow { 0%, 60% { transform: translateY(-3px); } 10%, 30%, 50% { transform: translateY(3px); } 20%, 40% { transform: translateY(-3px); } 70%, 100% { transform: none; } }
+@keyframes dlFill { 0% { transform: scaleX(0); } 62%, 86% { transform: scaleX(1); background: linear-gradient(90deg, var(--a1), var(--a3)); } 70%, 86% { background: var(--a2); } 100% { transform: scaleX(1); opacity: 0; } }
+
+.art-dbl > * { grid-area: 1 / 1; }
+.art-dbl .appicon { width: 64px; height: 64px; border-radius: 15px; box-shadow: 0 10px 30px rgba(80, 60, 220, .5); animation: iconHop 3.2s var(--ease) infinite; }
+.art-dbl .cursor { animation: dblCursor 3.2s var(--ease) infinite; }
+.art-dbl .ripple { width: 64px; height: 64px; border-radius: 15px; border-color: var(--a3); animation: dblRipple 3.2s ease-out infinite; }
+.art-dbl .ripple + .ripple { animation-name: dblRipple2; }
+@keyframes dblCursor { 0% { transform: translate(60px, 50px); opacity: 0; } 20% { transform: translate(16px, 18px); opacity: 1; }
+  28% { transform: translate(16px, 18px) scale(.82); } 32% { transform: translate(16px, 18px) scale(1); } 36% { transform: translate(16px, 18px) scale(.82); } 40%, 70% { transform: translate(16px, 18px) scale(1); opacity: 1; } 86%, 100% { transform: translate(60px, 50px); opacity: 0; } }
+@keyframes dblRipple { 0%, 27% { transform: scale(1); opacity: 0; } 29% { opacity: .8; } 55%, 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes dblRipple2 { 0%, 35% { transform: scale(1); opacity: 0; } 37% { opacity: .8; } 63%, 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes iconHop { 0%, 40% { transform: none; } 48% { transform: translateY(-8px) scale(1.06); } 58%, 100% { transform: none; } }
+
+.art-go { align-content: center; justify-items: center; gap: 12px; }
+.orb2 { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, var(--a1) 45%, #2a1e8a); box-shadow: 0 0 30px rgba(142, 125, 255, .6); animation: orbGo 4s var(--ease) infinite; }
+.art-go .lbl { display: grid; font-size: 12.5px; font-weight: 700; }
+.art-go .lbl span { grid-area: 1 / 1; text-align: center; animation: lblA 4s var(--ease) infinite; }
+.art-go .lbl span + span { color: var(--a2); animation-name: lblB; }
+@keyframes orbGo { 0%, 30% { background: radial-gradient(circle at 35% 30%, #fff, var(--a1) 45%, #2a1e8a); box-shadow: 0 0 30px rgba(142, 125, 255, .6); transform: scale(1); }
+  34% { transform: scale(.88); } 42%, 85% { background: radial-gradient(circle at 35% 30%, #fff, var(--a2) 45%, #0b5a44); box-shadow: 0 0 40px rgba(62, 240, 176, .7); transform: scale(1.05); }
+  100% { background: radial-gradient(circle at 35% 30%, #fff, var(--a1) 45%, #2a1e8a); box-shadow: 0 0 30px rgba(142, 125, 255, .6); transform: scale(1); } }
+@keyframes lblA { 0%, 30% { opacity: 1; transform: none; } 35%, 92% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: none; } }
+@keyframes lblB { 0%, 37% { opacity: 0; transform: translateY(8px); } 43%, 84% { opacity: 1; transform: none; } 90%, 100% { opacity: 0; transform: translateY(-8px); } }
+
+@media (max-width: 880px) { .stats { grid-template-columns: 1fr; gap: 18px; } }
+@media (prefers-reduced-motion: reduce) { .tile.mini .art *, .steps .art * { animation: none !important; } .stamp { transform: none; } }

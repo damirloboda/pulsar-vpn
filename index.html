@@ -65,9 +65,25 @@
 </header>
 
 <section class="stats">
-  <div class="stat reveal"><b data-count="1">0</b><span>tap to reach<br>the fastest server</span></div>
-  <div class="stat reveal"><b data-count="3">0</b><span>free networks,<br>tested every launch</span></div>
-  <div class="stat reveal"><b data-count="0" data-suffix="">0</b><span>accounts, emails<br>or payments</span></div>
+  <div class="cell reveal"><article class="tile mini">
+    <div class="art art-tap"><i class="ripple"></i><i class="ripple"></i><span class="tap-btn"><svg viewBox="0 0 24 24"><path d="M12 3v8M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></span><svg class="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.2 1.6L10 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+    <b class="big" data-count="1">0</b><span class="cap">tap to reach the fastest server</span>
+  </article></div>
+  <div class="cell reveal"><article class="tile mini">
+    <div class="art art-nets">
+      <div class="net"><em>Cloudflare WARP</em><small>24 ms</small><b></b></div>
+      <div class="net"><em>Riseup</em><small>41 ms</small><b></b></div>
+      <div class="net"><em>VPN Gate</em><small>63 ms</small><b></b></div>
+    </div>
+    <b class="big" data-count="3">0</b><span class="cap">free networks, tested every launch</span>
+  </article></div>
+  <div class="cell reveal"><article class="tile mini">
+    <div class="art art-zero">
+      <div class="form"><i></i><i></i><span>Sign up</span><s></s></div>
+      <span class="stamp">Not needed</span>
+    </div>
+    <b class="big" data-count="0">0</b><span class="cap">accounts, emails or payments</span>
+  </article></div>
 </section>
 
 <div class="marquee" aria-hidden="true"><div class="track">
@@ -141,9 +157,9 @@
 <section class="start" id="start">
   <h2 class="section-title reveal">Up and running in a minute.</h2>
   <ol class="steps">
-    <li class="reveal"><span class="num">1</span><h3>Download</h3><p>One file, about 11 MB. Nothing else to fill in.</p></li>
-    <li class="reveal"><span class="num">2</span><h3>Double-click</h3><p>Allow it to make network changes — a VPN needs that to route your traffic.</p></li>
-    <li class="reveal"><span class="num">3</span><h3>Tap the orb</h3><p>Pulsar picks the fastest server and connects. That's it.</p></li>
+    <li class="reveal"><div class="art art-dl"><div class="file"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5"/></svg></div><div class="bar"><i></i></div><small class="pct">PulsarVPN.exe · 11 MB</small></div><span class="num">1</span><h3>Download</h3><p>One file, about 11 MB. Nothing else to fill in.</p></li>
+    <li class="reveal"><div class="art art-dbl"><i class="ripple"></i><i class="ripple"></i><img class="appicon" src="icon.svg" alt=""><svg class="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.2 1.6L10 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg></div><span class="num">2</span><h3>Double-click</h3><p>Allow it to make network changes — a VPN needs that to route your traffic.</p></li>
+    <li class="reveal"><div class="art art-go"><div class="orb2"></div><div class="lbl"><span>Tap to connect</span><span>Connected · 18 ms</span></div></div><span class="num">3</span><h3>Tap the orb</h3><p>Pulsar picks the fastest server and connects. That's it.</p></li>
   </ol>
   <p class="smartscreen reveal">Windows may say <em>“Windows protected your PC”</em> because Pulsar is new and independently made. Click <b>More info → Run anyway</b>.</p>
   <a class="btn-primary center reveal" href="#" data-download>
