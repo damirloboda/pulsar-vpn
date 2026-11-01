@@ -411,3 +411,56 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 
 @media (max-width: 880px) { .stats { grid-template-columns: 1fr; gap: 18px; } }
 @media (prefers-reduced-motion: reduce) { .tile.mini .art *, .steps .art * { animation: none !important; } .stamp { transform: none; } }
+
+/* ---------- FAQ as cards: an animated icon, the question, a smooth reveal ---------- */
+.faq { max-width: 780px; }
+.qgrid { display: grid; gap: 12px; }
+.qcard { position: relative; overflow: hidden; border-radius: 22px; border: 1px solid var(--line) !important;
+  background: linear-gradient(180deg, #141418, #0d0d10); transition: border-color .4s, box-shadow .5s var(--ease), transform .5s var(--ease); }
+.qcard:hover { border-color: rgba(255, 255, 255, .16) !important; transform: translateY(-2px); }
+.qcard[open] { border-color: rgba(142, 125, 255, .35) !important; box-shadow: 0 20px 60px rgba(80, 60, 220, .18); }
+.faq .qcard summary { padding: 18px 20px; gap: 16px; justify-content: flex-start; font-size: 17px; }
+.faq .qcard summary::after { content: none; }
+.qcard .q { flex: 1; }
+.qcard .pm { position: relative; width: 28px; height: 28px; flex: none; border-radius: 50%; background: rgba(255, 255, 255, .06); transition: transform .5s var(--ease), background .4s; }
+.qcard .pm::before, .qcard .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 11px; height: 2px; margin: -1px 0 0 -5.5px; border-radius: 2px; background: var(--dim); transition: transform .5s var(--ease); }
+.qcard .pm::after { transform: rotate(90deg); }
+.qcard[open] .pm { transform: rotate(180deg); background: rgba(142, 125, 255, .2); }
+.qcard[open] .pm::after { transform: rotate(0); }
+.faq .qcard p { padding: 0 22px 22px 92px; font-size: 15.5px; }
+
+.qi { position: relative; width: 52px; height: 52px; flex: none; border-radius: 15px; display: grid; place-items: center;
+  background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .07); color: var(--fg); }
+.qi svg { width: 26px; height: 26px; stroke-width: 2; }
+.qi > * { grid-area: 1 / 1; }
+.qcard[open] .qi { background: rgba(142, 125, 255, .14); border-color: rgba(142, 125, 255, .3); }
+
+.qi-free b { font-size: 17px; font-weight: 800; letter-spacing: -.04em; background: linear-gradient(135deg, var(--a2), var(--a3)); -webkit-background-clip: text; background-clip: text; color: transparent; animation: coin 4s var(--ease) infinite; }
+@keyframes coin { 0%, 55% { transform: rotateY(0); } 75%, 100% { transform: rotateY(360deg); } }
+
+.qi-data { color: var(--a2); }
+.qi-data .shackle { animation: lock 3.6s var(--ease) infinite; }
+@keyframes lock { 0%, 20% { transform: translateY(-3px); } 32%, 85% { transform: none; } 100% { transform: translateY(-3px); } }
+.qi-data::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; box-shadow: 0 0 0 0 rgba(62, 240, 176, .5); animation: lockGlow 3.6s ease-out infinite; }
+@keyframes lockGlow { 0%, 30% { box-shadow: 0 0 0 0 rgba(62, 240, 176, .5); } 60%, 100% { box-shadow: 0 0 0 10px rgba(62, 240, 176, 0); } }
+
+.qi-fast { color: var(--a3); }
+.qi-fast .needle { transform-origin: 12px 17px; animation: needle 3.2s var(--ease) infinite; }
+@keyframes needle { 0%, 10% { transform: rotate(-95deg); } 45%, 70% { transform: rotate(8deg); } 55% { transform: rotate(-4deg); } 100% { transform: rotate(-95deg); } }
+
+.qi-admin { color: var(--a1); }
+.qi-admin .tick { stroke: var(--a2); stroke-dasharray: 12; stroke-dashoffset: 12; animation: tick 3.4s var(--ease) infinite; }
+@keyframes tick { 0%, 25% { stroke-dashoffset: 12; } 45%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 12; } }
+
+.qi-warn .tri { color: #ffb347; animation: warnOut 4s var(--ease) infinite; }
+.qi-warn .ok { color: var(--a2); opacity: 0; animation: warnIn 4s var(--ease) infinite; }
+@keyframes warnOut { 0%, 35% { opacity: 1; transform: none; } 10%, 20% { transform: scale(1.12); } 45%, 88% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: none; } }
+@keyframes warnIn { 0%, 40% { opacity: 0; transform: scale(.6); } 50%, 85% { opacity: 1; transform: none; } 95%, 100% { opacity: 0; transform: scale(.6); } }
+
+@media (max-width: 880px) {
+  .qgrid { grid-template-columns: 1fr; }
+  .faq .qcard summary { font-size: 16px; padding: 14px 16px; gap: 12px; }
+  .qi { width: 44px; height: 44px; border-radius: 13px; }
+  .faq .qcard p { padding: 0 18px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .qi * { animation: none !important; } .qi-warn .ok { opacity: 0; } }
