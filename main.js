@@ -208,7 +208,7 @@ if (finalSec) {
     const r = finalSec.getBoundingClientRect();
     if (r.top > innerHeight) return;
     const q = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * .9)));
-    finalSec.style.setProperty("--fy", `${(1 - q) * 220}px`);
+    finalSec.style.setProperty("--fy", `${(1 - q) * 120}px`);
     finalSec.style.setProperty("--fs", .6 + q * .5);
     finalSec.style.setProperty("--fo", q);
   });
@@ -216,7 +216,11 @@ if (finalSec) {
 
 /* ---------- liquid wallpaper: bright behind the hero, back during the story, off elsewhere ---------- */
 const liquid = document.getElementById("liquid");
-if (typeof Liquid !== "undefined" && liquid) {
+if (typeof Liquid !== "undefined" && liquid && (!fine || innerWidth <= 880)) {
+  // phones and tablets: the live demo already runs one WebGL wallpaper, two make scrolling stutter
+  Liquid.pause(true);
+  liquid.remove();
+} else if (typeof Liquid !== "undefined" && liquid) {
   Liquid.setState("scanning");
   let paused = false;
   onFrame.push(() => {
@@ -229,5 +233,18 @@ if (typeof Liquid !== "undefined" && liquid) {
     const v = Math.max(hero * .6, mid * .4);
     liquid.style.setProperty("--lq", v.toFixed(3));
     if ((v < .01) !== paused) { paused = v < .01; Liquid.pause(paused); }
+  });
+}
+
+/* steps: the connecting line fills and each number lights as the line reaches it */
+const stepsEl = document.querySelector(".steps");
+if (stepsEl) {
+  const items = [...stepsEl.children];
+  onFrame.push(() => {
+    const r = stepsEl.getBoundingClientRect();
+    if (r.top > innerHeight || r.bottom < 0) return;
+    const sp = Math.min(1, Math.max(0, (innerHeight * .8 - r.top) / (innerHeight * .45)));
+    stepsEl.style.setProperty("--sp", sp.toFixed(3));
+    items.forEach((li, i) => li.classList.toggle("lit", sp >= i / (items.length - 1) - .02));
   });
 }
