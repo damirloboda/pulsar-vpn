@@ -10,254 +10,122 @@ const DOWNLOAD_URL = C.owner
 document.querySelectorAll("[data-download]").forEach((a) => { a.href = DOWNLOAD_URL; });
 
 const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const fine = matchMedia("(pointer: fine)").matches;
-const narrow = () => innerWidth < 900;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const range = (p, a, b) => clamp((p - a) / (b - a));         // progress of p between a and b
+const smooth = (t) => t * t * (3 - 2 * t);
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const $ = (s) => document.querySelector(s);
 
-/* ---------- arrival ---------- */
-requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll(".fade").forEach((el) => el.classList.add("in"))));
-
-const nav = document.getElementById("nav");
-addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 30), { passive: true });
-
+/* ---------- reveal ---------- */
 const io = new IntersectionObserver((entries) => {
   for (const e of entries) {
     if (!e.isIntersecting) continue;
     e.target.classList.add("in");
     io.unobserve(e.target);
-    const n = e.target.querySelector("[data-count]");
-    if (n) countUp(n);
+    e.target.querySelectorAll("[data-to]").forEach(countTo);
+    e.target.querySelectorAll("[data-count]").forEach(countTo);
   }
-}, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-document.querySelectorAll(".reveal").forEach((el) => {
-  const sibs = [...el.parentElement.children].filter((c) => c.classList.contains("reveal"));
+}, { threshold: 0.15 });
+document.querySelectorAll(".rise").forEach((el) => {
+  const sibs = [...el.parentElement.children].filter((c) => c.classList.contains("rise"));
   el.style.setProperty("--d", `${Math.min(sibs.indexOf(el), 5) * 0.08}s`);
   io.observe(el);
 });
-
-function countUp(el) {
-  const target = +el.dataset.count, dec = +(el.dataset.dec || 0);
-  const t0 = performance.now(), dur = 1800;
+function countTo(el) {
+  const target = +(el.dataset.to ?? el.dataset.count), dec = +(el.dataset.dec || 0);
+  if (!target) { el.textContent = "0"; return; }
+  const t0 = performance.now(), dur = 1600;
   const step = (now) => {
     const p = Math.min(1, (now - t0) / dur);
-    el.textContent = (target * (1 - Math.pow(1 - p, 4))).toFixed(dec);
+    el.textContent = (target * easeOut(p)).toFixed(dec);
     if (p < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
 }
 
-/* ---------- the pulsar: a white-hot star whose two beams sweep around a tilted axis,
-   inside a slowly turning disk of particles. It moves between scenes as you scroll. ---------- */
-const Space = (() => {
-  const canvas = document.getElementById("space");
-  if (!window.THREE || still) { document.body.classList.add("no-gl"); canvas.remove(); return null; }
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: !narrow(), powerPreference: "high-performance" }); }
-  catch (_) { document.body.classList.add("no-gl"); canvas.remove(); return null; }
-  renderer.setPixelRatio(Math.min(narrow() ? 1.5 : 2, devicePixelRatio || 1));
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x02020a);
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+/* ---------- pinned scenes: progress through a tall section, softened so wheel steps glide ---------- */
+const scenes = [...document.querySelectorAll("[data-scene]")].map((el) => ({ el, p: 0 }));
+const target = (el) => { const r = el.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
 
-  const tex = (stops) => {
-    const c = document.createElement("canvas"); c.width = c.height = 128;
-    const g = c.getContext("2d"), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    stops.forEach(([o, col]) => gr.addColorStop(o, col)); g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
-    return new THREE.CanvasTexture(c);
-  };
-  const dot = tex([[0, "rgba(255,255,255,1)"], [0.25, "rgba(255,255,255,.6)"], [1, "rgba(255,255,255,0)"]]);
-  const haloTex = tex([[0, "rgba(255,255,255,1)"], [0.12, "rgba(220,212,255,.9)"], [0.35, "rgba(140,120,255,.35)"], [1, "rgba(80,60,220,0)"]]);
-
-  const star = new THREE.Group(); scene.add(star);
-  const core = new THREE.Mesh(new THREE.SphereGeometry(0.42, 48, 48), new THREE.MeshBasicMaterial({ color: 0xf4f1ff }));
-  star.add(core);
-  const sprite = (op) => new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: op }));
-  const glowA = sprite(1), glowB = sprite(0.35);
-  star.add(glowA, glowB);
-
-  const beamMat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
-    uniforms: { uLen: { value: 9 }, uOp: { value: 0 } },
-    vertexShader: "varying float vD; void main(){ vD = -position.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }",
-    fragmentShader: `uniform float uLen; uniform float uOp; varying float vD;
-      void main(){ float t = clamp(vD/uLen,0.,1.); float a = pow(1.-t,2.2)*.55*uOp;
-        vec3 c = mix(vec3(1.,.98,1.), mix(vec3(.62,.55,1.), vec3(.45,.8,1.), t), smoothstep(0.,.35,t));
-        gl_FragColor = vec4(c, a); }`,
-  });
-  const spin = new THREE.Group(); star.add(spin);
-  const axis = new THREE.Group(); axis.rotation.z = 0.62; spin.add(axis);
-  for (const flip of [0, Math.PI]) {
-    for (const r of [1.15, 0.22]) {
-      const g = new THREE.ConeGeometry(r, 9, r > 1 ? 48 : 24, 1, true); g.translate(0, -4.5, 0);
-      const m = new THREE.Mesh(g, beamMat); m.rotation.z = flip; axis.add(m);
-    }
-  }
-
-  const points = (n, place, size, opacity) => {
-    const pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-    const palette = [[0.62, 0.55, 1], [0.45, 0.78, 1], [0.5, 0.96, 0.82], [1, 1, 1]];
-    for (let i = 0; i < n; i++) { pos.set(place(), i * 3); col.set(palette[(Math.random() * palette.length) | 0], i * 3); }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    return new THREE.Points(g, new THREE.PointsMaterial({ size, map: dot, vertexColors: true, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
-  };
-  const disk = points(narrow() ? 4500 : 9000, () => {
-    const r = 1.6 + Math.pow(Math.random(), 1.6) * 9, a = Math.random() * Math.PI * 2, arm = Math.sin(a * 2 + r * 0.7) * 0.5;
-    return [Math.cos(a + arm) * r, (Math.random() - 0.5) * 0.35 * (1 + r * 0.08), Math.sin(a + arm) * r];
-  }, 0.07, 0.9);
-  disk.rotation.x = 0.38; star.add(disk);
-  const far = points(narrow() ? 1800 : 4000, () => {
-    const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = 40 + Math.random() * 60, s = Math.sqrt(1 - u * u);
-    return [Math.cos(th) * s * r, u * r, Math.sin(th) * s * r];
-  }, 0.35, 0.8);
-  scene.add(far);
-
-  // where the star sits in each part of the page (world units; x is ±9 at the screen edge on desktop)
-  const WIDE = {
-    top:      { x: 2.4, y: 0.9, z: 12, beam: 1, glow: 1, disk: 0.9 },
-    app:      { x: 3.6, y: 0.2, z: 13, beam: 0.9, glow: 0.95, disk: 0.75 },
-    features: { x: 0, y: 5.2, z: 16, beam: 0.45, glow: 0.55, disk: 0.45 },
-    how:      { x: -7.5, y: -0.6, z: 15, beam: 0.4, glow: 0.5, disk: 0.5 },
-    faq:      { x: -7.8, y: 1.6, z: 15, beam: 0.35, glow: 0.5, disk: 0.45 },
-    final:    { x: 0, y: 3.5, z: 11, beam: 1.15, glow: 1.2, disk: 0.95 },
-  };
-  const TALL = {
-    top:      { x: 0, y: 4.4, z: 14, beam: 1, glow: 0.9, disk: 0.9 },
-    app:      { x: 0, y: 3.6, z: 15, beam: 0.8, glow: 0.9, disk: 0.7 },
-    features: { x: 0, y: 6, z: 18, beam: 0.4, glow: 0.5, disk: 0.4 },
-    how:      { x: 0, y: -5, z: 17, beam: 0.35, glow: 0.45, disk: 0.45 },
-    faq:      { x: 0, y: 5, z: 17, beam: 0.35, glow: 0.45, disk: 0.4 },
-    final:    { x: 0, y: 4.6, z: 14, beam: 1.05, glow: 1.1, disk: 0.9 },
-  };
-  const ids = ["top", "app", "features", "how", "faq", "final"];
-  const els = ids.map((id) => document.getElementById(id));
-  const keys = ["x", "y", "z", "beam", "glow", "disk"];
-  const cur = { ...WIDE.top };
-  let anchors = [];
-
-  function layout() {
-    const w = innerWidth, h = innerHeight;
-    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-    anchors = els.map((el) => el.getBoundingClientRect().top + scrollY);
-  }
-  addEventListener("resize", layout); addEventListener("load", layout); layout();
-
-  // a scroll position becomes a blend of two neighbouring scenes
-  function target() {
-    const set = narrow() ? TALL : WIDE;
-    const mid = scrollY + innerHeight * 0.5;
-    let i = 0;
-    while (i < anchors.length - 1 && mid >= anchors[i + 1]) i++;
-    const a = set[ids[i]], b = set[ids[Math.min(i + 1, ids.length - 1)]];
-    const span = (anchors[i + 1] ?? anchors[i] + 1) - anchors[i];
-    let t = i === anchors.length - 1 ? 0 : Math.min(1, Math.max(0, (mid - anchors[i]) / span));
-    t = Math.min(1, Math.max(0, (t - 0.55) / 0.45));   // hold the scene while you read, glide near the end
-    t = t * t * (3 - 2 * t);
-    const out = {};
-    for (const k of keys) out[k] = a[k] + (b[k] - a[k]) * t;
-    return out;
-  }
-
-  let mx = 0, my = 0, cx = 0, cy = 0, last = performance.now();
-  const born = performance.now();
-  addEventListener("pointermove", (e) => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; }, { passive: true });
-
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    const goal = target(), k = 1 - Math.pow(0.02, dt);       // glide toward the scene, frame-rate independent
-    for (const key of keys) cur[key] += (goal[key] - cur[key]) * k;
-    cx += (mx - cx) * 0.04; cy += (my - cy) * 0.04;
-    const ignite = Math.min(1, (now - born) / 1800), e = 1 - Math.pow(1 - ignite, 3);
-
-    star.position.set(cur.x, cur.y, 0);
-    spin.rotation.y += dt * 1.15;
-    disk.rotation.y += dt * 0.05;
-    far.rotation.y += dt * 0.004;
-    beamMat.uniforms.uOp.value = cur.beam * e;
-    disk.material.opacity = cur.disk * e;
-    const pulse = 1 + Math.sin(now * 0.004) * 0.05;
-    glowA.scale.setScalar(4.2 * cur.glow * pulse * (0.3 + 0.7 * e));
-    glowB.scale.setScalar(11 * cur.glow * (0.3 + 0.7 * e));
-    glowB.material.opacity = 0.35 * cur.glow * e;
-    core.scale.setScalar(0.4 + 0.6 * e);
-
-    camera.position.set(cx * 2.4, -cy * 1.6 + 1, cur.z);
-    camera.lookAt(cx * 0.6, 0, 0);
-    renderer.render(scene, camera);
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame((t) => { canvas.classList.add("on"); frame(t); });
-  return { layout };
-})();
-
-/* ---------- page motion: progress, app window lean, steps line ---------- */
-const progress = document.getElementById("progress");
-const win = document.getElementById("window");
-const stepsEl = document.querySelector(".steps");
-const stepItems = stepsEl ? [...stepsEl.children] : [];
-let px = 0, py = 0, tx = 0, ty = 0;
-addEventListener("pointermove", (e) => { tx = e.clientX / innerWidth * 2 - 1; ty = e.clientY / innerHeight * 2 - 1; }, { passive: true });
-
-function tick() {
-  px += (tx - px) * 0.07; py += (ty - py) * 0.07;
-  const vh = innerHeight, max = document.documentElement.scrollHeight - vh;
-  progress.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
-  if (win && fine) { win.style.setProperty("--wy", `${px * 7}deg`); win.style.setProperty("--wx", `${-py * 5}deg`); }
-  if (stepsEl) {
-    const r = stepsEl.getBoundingClientRect();
-    if (r.top < vh && r.bottom > 0) {
-      const sp = Math.min(1, Math.max(0, (vh * 0.82 - r.top) / (vh * 0.42)));
-      stepsEl.style.setProperty("--sp", sp.toFixed(3));
-      stepItems.forEach((li, i) => li.classList.toggle("lit", sp >= i / (stepItems.length - 1) - 0.02));
-    }
-  }
-  requestAnimationFrame(tick);
-}
-if (still) { stepItems.forEach((li) => li.classList.add("lit")); if (stepsEl) stepsEl.style.setProperty("--sp", 1); }
-else requestAnimationFrame(tick);
-
-/* ---------- cards: the hairline lights up wherever the cursor is, across the whole group ---------- */
-document.querySelectorAll(".glow-group").forEach((group) => {
-  const cards = [...group.querySelectorAll(".card, .qcard")];
-  group.addEventListener("pointermove", (e) => {
-    for (const c of cards) {
-      const r = c.getBoundingClientRect();
-      c.style.setProperty("--mx", `${e.clientX - r.left}px`);
-      c.style.setProperty("--my", `${e.clientY - r.top}px`);
-    }
-  });
-  group.addEventListener("pointerleave", () => {
-    for (const c of cards) { c.style.setProperty("--mx", "-999px"); c.style.setProperty("--my", "-999px"); }
-  });
-});
-
-if (fine && !still) {
-  document.querySelectorAll(".card").forEach((c) => {
-    c.addEventListener("pointermove", (e) => {
-      const r = c.getBoundingClientRect();
-      c.style.setProperty("--ry", `${((e.clientX - r.left) / r.width - 0.5) * 6}deg`);
-      c.style.setProperty("--rx", `${(0.5 - (e.clientY - r.top) / r.height) * 5}deg`);
-    });
-    c.addEventListener("pointerleave", () => { c.style.setProperty("--rx", "0deg"); c.style.setProperty("--ry", "0deg"); });
-  });
-  // magnetic download buttons
-  document.querySelectorAll(".dl").forEach((b) => {
-    b.addEventListener("pointermove", (e) => {
-      const r = b.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-      b.style.transition = "transform .15s linear, box-shadow .5s";
-      b.style.transform = `translate(${dx * 0.14}px, ${dy * 0.26}px) scale(1.03)`;
-    });
-    b.addEventListener("pointerleave", () => { b.style.transition = ""; b.style.transform = ""; });
-  });
+// scene 1: the laptop opens, the screen lights, then we fly into it
+const laptop = $("#laptop"), lid = $("#lid"), screen = $("#screen"), intro = $("#intro"), lead = $("#lead"), lshadow = $("#lshadow");
+const LW = 760, LH = 470;
+let fit = 1;
+function renderOpen(p) {
+  const open = easeOut(range(p, 0.03, 0.4));
+  const zoom = smooth(range(p, 0.5, 0.95));
+  // we look down at the laptop (theta); the lid opens until it faces us, then both flatten for the fly-in
+  const theta = (32 - 16 * open) * (1 - zoom);
+  lid.style.transform = `rotateX(${(-90 + 106 * open) * (1 - zoom)}deg)`;
+  // zoom until the screen (lid minus its bezel) covers the viewport
+  // phones: fill the width, so the app on the screen stays in view
+  const Z = innerWidth <= 760 ? innerWidth / ((LW - 26) * fit) : Math.max(innerWidth / ((LW - 26) * fit), innerHeight / ((LH - 35) * fit)) * 1.02;
+  const scale = fit * (1 + (Z - 1) * zoom);
+  laptop.style.transform = `translateY(${(1 - open) * 5}vh) rotateX(${-theta}deg) scale(${scale})`;
+  screen.style.setProperty("--on", smooth(range(p, 0.16, 0.38)).toFixed(3));
+  const gone = smooth(range(p, 0.08, 0.3));
+  intro.style.opacity = 1 - gone;
+  intro.style.transform = `translateY(${-70 * gone}px) scale(${1 - 0.06 * gone})`;
+  const show = smooth(range(p, 0.32, 0.42)) * (1 - smooth(range(p, 0.5, 0.58)));
+  lead.style.opacity = show;
+  lead.style.transform = `translateY(${(1 - show) * 24}px)`;
+  lead.style.pointerEvents = show > 0.5 ? "auto" : "none";
+  lshadow.style.opacity = open * (1 - zoom);
 }
 
-// anchors and images shift the page once fonts and the demo load: re-measure the scenes
-document.fonts && document.fonts.ready.then(() => Space && Space.layout());
+// scene 2: the app turns while three captions take turns; at the third it connects
+const caps = [...document.querySelectorAll(".cap")];
+const dots = [...document.querySelectorAll(".dots i")];
+const heroApp = $("#heroApp"), phone = heroApp.querySelector(".phone");
+let pf = 1, connected = false;
+function renderApp(p) {
+  const n = caps.length;
+  caps.forEach((c, i) => {
+    const local = p * n - i;
+    let a = smooth(range(local, -0.04, 0.16)) * (1 - smooth(range(local, 0.84, 1)));
+    if (i === 0) a = 1 - smooth(range(local, 0.84, 1));
+    if (i === n - 1) a = smooth(range(local, -0.04, 0.16));
+    c.style.opacity = a.toFixed(3);
+    c.style.transform = `translateY(${(0.45 - clamp(local, -0.3, 1.3)) * 44}px)`;
+    c.style.filter = a > 0.98 ? "none" : `blur(${((1 - a) * 8).toFixed(1)}px)`;
+  });
+  const idx = Math.min(n - 1, Math.floor(p * n));
+  dots.forEach((d, i) => d.classList.toggle("on", i === idx));
+  phone.style.transform = `scale(${pf * (0.94 + 0.08 * p)}) rotateY(${-16 + 30 * p}deg) rotateX(${7 - 11 * p}deg)`;
+  if (p > 0.7 && !connected) {
+    connected = true;
+    heroApp.classList.add("on");
+    try { $("#storyApp").contentDocument.getElementById("orb").click(); } catch (_) {}
+  }
+}
 
-/* ---------- the live demo's wallpaper sleeps while the demo is off-screen ---------- */
-const demo = document.querySelector(".window-screen iframe");
-if (demo) {
+function measure() {
+  fit = Math.min(1, innerWidth * 0.84 / LW, innerHeight * 0.42 / LH);
+  const narrow = innerWidth <= 760;
+  pf = narrow ? Math.min((innerHeight - 330) / 812, (innerWidth - 44) / 420) : Math.min(1, innerHeight * 0.8 / 812, (innerWidth / 2 - 40) / 420);
+  pf = Math.max(0.3, pf);
+  heroApp.style.width = `${420 * pf}px`;
+  heroApp.style.height = `${812 * pf}px`;
+}
+addEventListener("resize", measure);
+measure();
+Object.assign(phone.style, { position: "absolute", left: "50%", top: "50%", margin: "-406px 0 0 -210px" });
+
+function frame() {
+  for (const s of scenes) {
+    const t = target(s.el);
+    s.p += (t - s.p) * (still ? 1 : 0.16);
+    if (Math.abs(t - s.p) < 0.0005) s.p = t;
+  }
+  renderOpen(scenes[0].p);
+  renderApp(scenes[1].p);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- the demo apps' liquid wallpaper sleeps while off-screen ---------- */
+document.querySelectorAll("iframe[src*='demo/']").forEach((f) => {
   new IntersectionObserver(([e]) => {
-    try { demo.contentWindow.eval(`typeof Liquid !== "undefined" && Liquid.pause(${!e.isIntersecting})`); } catch (_) {}
-  }).observe(demo);
-}
+    try { f.contentWindow.eval(`typeof Liquid !== "undefined" && Liquid.pause(${!e.isIntersecting})`); } catch (_) {}
+  }).observe(f);
+});
