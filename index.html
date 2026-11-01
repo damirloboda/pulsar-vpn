@@ -7,77 +7,84 @@
 <meta name="description" content="Pulsar VPN is a free, fast VPN for Windows. One tap connects you to the fastest free server for gaming or speed. No account, no ads, no registration.">
 <meta name="keywords" content="Pulsar VPN, free VPN, VPN for Windows, gaming VPN, fast VPN, no registration VPN">
 <meta name="author" content="Damir Loboda">
-<meta property="og:title" content="Pulsar VPN — fast, free VPN for Windows">
+<meta property="og:title" content="Pulsar VPN — the fastest way out">
 <meta property="og:description" content="One tap. The fastest free server. No account.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://damirloboda.github.io/pulsar-vpn/">
 <meta property="og:image" content="https://damirloboda.github.io/pulsar-vpn/icon-512.png">
-<meta name="theme-color" content="#050507">
+<meta name="theme-color" content="#02020a">
 <link rel="canonical" href="https://damirloboda.github.io/pulsar-vpn/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<noscript><style>.intro, .pop, .reveal { opacity: 1 !important; transform: none !important; translate: none !important; filter: none !important; } .headline .line > span { transform: none !important; opacity: 1 !important; filter: none !important; }</style></noscript>
+<noscript><style>.fade, .reveal { opacity: 1 !important; translate: none !important; filter: none !important; } #space { display: none; }</style></noscript>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pulsar VPN","operatingSystem":"Windows 10, Windows 11","applicationCategory":"SecurityApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Damir Loboda"}}
 </script>
 </head>
-<body class="loading">
-<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
-<div class="noise" aria-hidden="true"></div>
+<body>
+<canvas id="space" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
 <div class="progress" id="progress"></div>
 
-<header class="nav intro" id="nav" style="--i:0">
+<nav class="nav fade" id="nav">
   <a class="brand" href="#top"><img src="icon.svg" alt=""><span>Pulsar</span></a>
-  <nav class="links"><a href="#features">Features</a><a href="#how">How it works</a><a href="#faq">FAQ</a></nav>
-  <a class="nav-dl" href="#" data-download>Download</a>
-</header>
+  <div class="links"><a href="#app">The app</a><a href="#features">Features</a><a href="#how">How it works</a><a href="#faq">FAQ</a></div>
+  <a class="ghost" href="#" data-download>Download</a>
+</nav>
 
 <main>
 <!-- ================= hero ================= -->
 <section class="hero" id="top">
-  <a class="badge intro" href="#features" style="--i:1"><span class="dot"></span>Free forever · No account<span class="badge-os"> · Windows 10 &amp; 11</span>
-    <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
-  <h1 class="headline"><span class="line"><span>One tap.</span></span><span class="line"><span class="grad">The fastest way out.</span></span></h1>
-  <p class="lede intro" style="--i:4">Pulsar measures every free server from your own Wi-Fi and drops you on the quickest one. No sign-up. No ads. No catch.</p>
-  <div class="cta intro" style="--i:5">
-    <a class="btn btn-primary" href="#" data-download>
-      <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Download for Windows</a>
-    <a class="btn btn-ghost" href="#features">See what it does</a>
+  <p class="kicker fade" style="--d:.2s">Pulsar VPN — free for Windows 10 &amp; 11</p>
+  <h1 class="fade" style="--d:.35s">The fastest<br><em>way out.</em></h1>
+  <div class="hero-row fade" style="--d:.6s">
+    <p class="lede">Like a pulsar, it sweeps the sky — every free server, measured from your own Wi-Fi — and locks onto the brightest one. One tap. No account.</p>
+    <div class="hero-cta">
+      <a class="dl" href="#" data-download><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Download for Windows — free</a>
+      <span class="dl-note">11 MB · no installer · no sign-up</span>
+    </div>
   </div>
-  <p class="cta-note intro" style="--i:6">Free · 11 MB · Windows 10 &amp; 11</p>
+  <a class="scroll fade" href="#app" style="--d:.9s"><i></i>Scroll</a>
+</section>
 
-  <div class="showcase intro" style="--i:7">
-    <div class="glow" aria-hidden="true"><div class="beams"><i></i><i></i></div></div>
-    <div class="chip-float pop" data-depth="26" style="--i:10;left:calc(50% - 410px);top:90px"><span class="live"></span>Frankfurt <b>18 ms</b></div>
-    <div class="chip-float pop" data-depth="-20" style="--i:11;left:calc(50% + 228px);top:170px"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Auto failover</div>
-    <div class="chip-float pop" data-depth="16" style="--i:12;left:calc(50% - 380px);top:430px"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>No account</div>
-    <div class="chip-float pop" data-depth="-28" style="--i:13;left:calc(50% + 214px);top:500px"><svg viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg>WireGuard · WARP</div>
+<!-- ================= the app ================= -->
+<section class="app" id="app">
+  <div class="app-copy">
+    <p class="kicker reveal">The app</p>
+    <h2 class="reveal">One tap.<br><em>That’s the whole app.</em></h2>
+    <p class="body reveal">Open Pulsar, touch the orb. It pings every free server from your connection, throws out anything slow and connects you to the quickest — usually in a few seconds.</p>
+    <ul class="ticks reveal">
+      <li><b>Fastest server, picked for you</b><span>ranked by ping from your own Wi-Fi</span></li>
+      <li><b>Gaming or Speed</b><span>lowest ping, or the most bandwidth</span></li>
+      <li><b>Never drops you</b><span>a watchdog moves you on in about a second</span></li>
+    </ul>
+  </div>
+  <div class="app-stage reveal">
     <div class="window-wrap" id="window">
       <div class="window">
         <div class="window-bar"><img src="icon.svg" alt=""><b>Pulsar VPN</b><i>&#8211;</i><i>&#10005;</i></div>
-        <div class="window-screen"><iframe src="demo/index.html" title="Pulsar live demo" loading="eager" scrolling="no"></iframe></div>
+        <div class="window-screen"><iframe src="demo/index.html" title="Pulsar live demo" loading="lazy" scrolling="no"></iframe></div>
       </div>
     </div>
     <p class="hint">This is the real app — tap the orb.</p>
   </div>
 </section>
 
-<!-- ================= networks strip ================= -->
-<section class="strip">
-  <p class="strip-label reveal">Runs on free networks you already trust</p>
-  <div class="marquee" aria-hidden="true"><div class="track">
-    <span>Cloudflare WARP</span><b></b><span>Riseup</span><b></b><span>VPN Gate</span><b></b><span>WireGuard</span><b></b><span>OpenVPN</span><b></b><span>Auto failover</span><b></b>
-    <span>Cloudflare WARP</span><b></b><span>Riseup</span><b></b><span>VPN Gate</span><b></b><span>WireGuard</span><b></b><span>OpenVPN</span><b></b><span>Auto failover</span><b></b>
+<!-- ================= networks ================= -->
+<section class="strip" aria-label="Networks Pulsar uses">
+  <div class="marquee"><div class="track">
+    <span>Cloudflare WARP</span><b>✦</b><span>Riseup</span><b>✦</b><span>VPN Gate</span><b>✦</b><span>WireGuard</span><b>✦</b><span>OpenVPN</span><b>✦</b>
+    <span>Cloudflare WARP</span><b>✦</b><span>Riseup</span><b>✦</b><span>VPN Gate</span><b>✦</b><span>WireGuard</span><b>✦</b><span>OpenVPN</span><b>✦</b>
   </div></div>
 </section>
 
 <!-- ================= features ================= -->
 <section class="features" id="features">
-  <header class="sec-head reveal"><span class="eyebrow">Features</span><h2>Everything a VPN should be.<br><span class="dim">Nothing it shouldn't.</span></h2></header>
+  <header class="sec-head"><p class="kicker reveal">Features</p><h2 class="reveal">Everything a VPN should be.<br><em>Nothing it shouldn’t.</em></h2></header>
   <div class="bento glow-group">
 
     <article class="card span-2 reveal">
@@ -90,7 +97,7 @@
         <span class="chip" style="--x:-170px;--y:42px"><em>NL</em>Amsterdam<small>31 ms</small></span>
         <span class="chip off" style="--x:160px;--y:40px"><em>JP</em>Tokyo<small>240 ms</small></span>
       </div>
-      <h3>Finds the fastest server. Itself.</h3>
+      <h3>Finds the fastest server. <em>Itself.</em></h3>
       <p>Every launch, Pulsar pings every free server straight from your Wi-Fi and ranks them. Anything over 150 ms never makes the list.</p>
     </article>
 
@@ -106,7 +113,7 @@
           <text x="252" y="144" text-anchor="middle">Server B</text>
         </svg>
       </div>
-      <h3>Never drops you.</h3>
+      <h3>Never <em>drops</em> you.</h3>
       <p>A watchdog checks the tunnel every second. If a server dies, you’re moved to the next best one on your own.</p>
     </article>
 
@@ -114,7 +121,7 @@
       <div class="art art-tap"><i class="ripple"></i><i class="ripple"></i>
         <span class="tap-btn"><svg viewBox="0 0 24 24"><path d="M12 3v8M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></span>
         <svg class="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.2 1.6L10 19z"/></svg></div>
-      <h3>One tap.</h3>
+      <h3>One <em>tap.</em></h3>
       <p>Hit the orb. Pulsar picks the quickest server and connects in seconds.</p>
     </article>
 
@@ -124,7 +131,7 @@
         <div class="net"><em>Riseup</em><small>41 ms</small><b></b></div>
         <div class="net"><em>VPN Gate</em><small>63 ms</small><b></b></div>
       </div>
-      <h3>Three networks, raced.</h3>
+      <h3>Three networks, <em>raced.</em></h3>
       <p>WARP, Riseup and VPN Gate go head to head every launch. The fastest wins.</p>
     </article>
 
@@ -133,7 +140,7 @@
         <div class="form"><i></i><i></i><span>Sign up</span><s></s></div>
         <span class="stamp">Not needed</span>
       </div>
-      <h3>Zero accounts.</h3>
+      <h3>Zero <em>accounts.</em></h3>
       <p>No email, no password, no card. Download it and you’re in.</p>
     </article>
 
@@ -142,7 +149,7 @@
         <div class="seg"><i class="thumb"></i><span>Gaming</span><span>Speed</span></div>
         <div class="readout"><span class="ro-a"><b>18</b> ms ping</span><span class="ro-b"><b>312</b> Mbps</span></div>
       </div>
-      <h3>Gaming or Speed.</h3>
+      <h3>Gaming <em>or</em> Speed.</h3>
       <p>Gaming ranks servers by ping. Speed ranks them by bandwidth. Switch any time.</p>
     </article>
 
@@ -155,7 +162,7 @@
         </svg>
         <div class="read"><b data-count="94.6" data-dec="1">0</b><small>Mbps</small></div>
       </div>
-      <h3>Know your real speed.</h3>
+      <h3>Know your <em>real</em> speed.</h3>
       <p>A built-in line test shows the true maximum of your internet, VPN on or off.</p>
     </article>
 
@@ -164,17 +171,16 @@
         <i></i><i></i><i></i>
         <div class="pane"><span class="pdot"></span><div><b>Connected</b><small>Frankfurt · 18 ms</small></div><span class="toggle"></span></div>
       </div>
-      <h3>Liquid glass.</h3>
+      <h3>Liquid <em>glass.</em></h3>
       <p>A living, refractive interface that flows with your cursor and stays perfectly smooth.</p>
     </article>
 
     <article class="card span-3 card-free reveal">
       <div class="art art-free"><b>Free</b><div class="pills"><span>No trial</span><span>No ads</span><span>No premium tier</span></div></div>
       <div class="free-copy">
-        <h3>Free. Really.</h3>
+        <h3>Free. <em>Really.</em></h3>
         <p>No trial, no “premium”, no ads. Pulsar is a gift — use it, share it.</p>
-        <a class="btn btn-primary small" href="#" data-download>
-          <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Get Pulsar</a>
+        <a class="dl small" href="#" data-download><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Get Pulsar</a>
       </div>
     </article>
   </div>
@@ -182,22 +188,22 @@
 
 <!-- ================= how it works ================= -->
 <section class="how" id="how">
-  <header class="sec-head reveal"><span class="eyebrow">How it works</span><h2>Up and running<br><span class="dim">in a minute.</span></h2></header>
+  <header class="sec-head"><p class="kicker reveal">How it works</p><h2 class="reveal">Up and running<br><em>in a minute.</em></h2></header>
   <ol class="steps glow-group">
     <li class="card reveal"><div class="art art-dl"><div class="file"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5"/></svg></div><div class="bar"><i></i></div><small>PulsarVPN.exe · 11 MB</small></div>
-      <span class="num">1</span><h3>Download</h3><p>One file, about 11 MB. Nothing to fill in.</p></li>
+      <span class="num">01</span><h3>Download</h3><p>One file, about 11 MB. Nothing to fill in.</p></li>
     <li class="card reveal"><div class="art art-dbl"><i class="ripple"></i><i class="ripple"></i><img class="appicon" src="icon.svg" alt="">
         <svg class="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.2 1.6L10 19z"/></svg></div>
-      <span class="num">2</span><h3>Double-click</h3><p>Allow network changes — a VPN needs that to route your traffic.</p></li>
+      <span class="num">02</span><h3>Double-click</h3><p>Allow network changes — a VPN needs that to route your traffic.</p></li>
     <li class="card reveal"><div class="art art-go"><div class="orb2"></div><div class="lbl"><span>Tap to connect</span><span>Connected · 18 ms</span></div></div>
-      <span class="num">3</span><h3>Tap the orb</h3><p>Pulsar picks the fastest server and connects. That’s it.</p></li>
+      <span class="num">03</span><h3>Tap the orb</h3><p>Pulsar picks the fastest server and connects. That’s it.</p></li>
   </ol>
   <p class="smartscreen reveal">Windows may say <em>“Windows protected your PC”</em> because Pulsar is new and independently made. Click <b>More info → Run anyway</b>.</p>
 </section>
 
 <!-- ================= faq ================= -->
 <section class="faq" id="faq">
-  <header class="sec-head reveal"><span class="eyebrow">FAQ</span><h2>Questions.</h2></header>
+  <header class="sec-head"><p class="kicker reveal">FAQ</p><h2 class="reveal">Questions, <em>answered.</em></h2></header>
   <div class="qgrid glow-group">
     <details class="qcard reveal"><summary><span class="qi qi-free"><b>$0</b></span><span class="q">Is Pulsar really free?</span><span class="pm"></span></summary>
       <p>Yes. No account, no subscription, no ads. It connects you to free networks run by Cloudflare (WARP), the non-profit Riseup, and the VPN Gate academic project.</p></details>
@@ -214,26 +220,20 @@
 
 <!-- ================= finale ================= -->
 <section class="final" id="final">
-  <div class="pulsar" aria-hidden="true">
-    <div class="beams"><i></i><i></i></div>
-    <div class="halo"></div>
-    <img class="star" src="icon.svg" alt="">
-  </div>
-  <h2 class="final-title reveal">Ready when you are.</h2>
+  <p class="kicker reveal">Pulsar VPN</p>
+  <h2 class="reveal">Ready when<br><em>you are.</em></h2>
   <p class="final-sub reveal">Free. 11 MB. No account. Ever.</p>
-  <div class="cta reveal">
-    <a class="btn btn-primary" href="#" data-download>
-      <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Download for Windows</a>
-  </div>
+  <div class="reveal"><a class="dl big" href="#" data-download><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Download for Windows</a></div>
 </section>
 </main>
 
 <footer class="footer">
   <a class="brand" href="#top"><img src="icon.svg" alt=""><span>Pulsar</span></a>
-  <nav><a href="#features">Features</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://github.com/damirloboda/pulsar-vpn">GitHub</a></nav>
+  <nav><a href="#app">The app</a><a href="#features">Features</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://github.com/damirloboda/pulsar-vpn">GitHub</a></nav>
   <p>Made by Damir Loboda · © 2026</p>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="config.js"></script>
 <script src="main.js"></script>
 <script src="stats.js"></script>
