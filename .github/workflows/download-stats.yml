@@ -1,0 +1,31 @@
+# Once a day, write the running total of PulsarVPN.exe downloads to stats/downloads.csv.
+# The difference between two rows is how many people downloaded Pulsar that day.
+name: Download stats
+
+on:
+  schedule:
+    - cron: "55 23 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record today's download total
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          total=$(gh api "repos/${{ github.repository }}/releases" --paginate \
+            --jq '[.[].assets[] | select(.name == "PulsarVPN.exe") | .download_count] | add // 0' | awk '{s+=$1} END {print s+0}')
+          mkdir -p stats
+          [ -f stats/downloads.csv ] || echo "date_utc,total_downloads" > stats/downloads.csv
+          echo "$(date -u +%F),$total" >> stats/downloads.csv
+          git config user.name "pulsar-stats"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stats/downloads.csv
+          git commit -m "stats: $(date -u +%F) total downloads $total" || exit 0
+          git push
