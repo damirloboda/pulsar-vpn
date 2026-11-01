@@ -53,7 +53,7 @@
 
   <div class="device-wrap reveal-device">
     <div class="device">
-      <div class="device-bar"><span></span><b>Pulsar VPN</b></div>
+      <div class="device-bar"><span></span><b>Pulsar VPN</b><i class="wc">&#8211;</i><i class="wc">&#10005;</i></div>
       <div class="device-screen">
         <iframe src="demo/index.html" title="Pulsar interactive demo" loading="eager" scrolling="no"></iframe>
       </div>
@@ -80,31 +80,59 @@
 <section class="features" id="features">
   <h2 class="section-title reveal">Built to feel effortless.</h2>
   <div class="bento">
-    <article class="tile tile-wide reveal">
-      <div class="tile-art art-orb"><i></i><i></i><i></i></div>
+    <div class="cell wide reveal"><article class="tile">
+      <div class="art art-orb">
+        <i class="ping"></i><i class="ping"></i>
+        <div class="orbit o1"><b></b></div><div class="orbit o2"><b></b></div>
+        <div class="core"></div>
+        <span class="chip best" style="--x:-200px;--y:-38px"><em>DE</em>Frankfurt<small>18 ms</small></span>
+        <span class="chip" style="--x:150px;--y:-50px"><em>PL</em>Warsaw<small>26 ms</small></span>
+        <span class="chip" style="--x:-170px;--y:42px"><em>NL</em>Amsterdam<small>31 ms</small></span>
+        <span class="chip off" style="--x:160px;--y:40px"><em>JP</em>Tokyo<small>240 ms</small></span>
+      </div>
       <h3>Finds the fastest server. Itself.</h3>
       <p>Every launch, Pulsar pings every free server straight from your Wi-Fi and ranks them for gaming or raw speed. Anything over 150 ms never makes the list.</p>
-    </article>
-    <article class="tile reveal">
-      <div class="tile-art art-switch"><span></span><span></span></div>
+    </article></div>
+    <div class="cell reveal"><article class="tile">
+      <div class="art art-route">
+        <svg viewBox="0 0 300 150" aria-hidden="true">
+          <path class="wire" d="M44 75 C140 75 150 35 252 35"/><path class="wire" d="M44 75 C140 75 150 115 252 115"/>
+          <path class="flow fa" d="M44 75 C140 75 150 35 252 35"/><path class="flow fb" d="M44 75 C140 75 150 115 252 115"/>
+          <circle class="you" cx="44" cy="75" r="11"/>
+          <circle class="na" cx="252" cy="35" r="9"/><circle class="nb" cx="252" cy="115" r="9"/>
+          <text x="44" y="108" text-anchor="middle">You</text>
+          <text class="ta" x="252" y="16" text-anchor="middle">Server A</text>
+          <text class="tb" x="252" y="144" text-anchor="middle">Server B</text>
+        </svg>
+      </div>
       <h3>Never drops you.</h3>
       <p>A watchdog checks the tunnel every second. If a server dies, Pulsar moves you to the next best one on its own.</p>
-    </article>
-    <article class="tile reveal">
-      <div class="tile-art art-glass"></div>
+    </article></div>
+    <div class="cell reveal"><article class="tile">
+      <div class="art art-glass">
+        <i></i><i></i><i></i>
+        <div class="pane"><span class="dot"></span><div><b>Connected</b><small>Frankfurt · 18 ms</small></div><span class="toggle"></span></div>
+      </div>
       <h3>Liquid glass.</h3>
       <p>A living, refractive interface that flows with your cursor and stays perfectly smooth.</p>
-    </article>
-    <article class="tile reveal">
-      <div class="tile-art art-gauge"><b>9.7</b><small>Mbps</small></div>
+    </article></div>
+    <div class="cell reveal"><article class="tile">
+      <div class="art art-gauge">
+        <svg viewBox="0 0 200 120" aria-hidden="true">
+          <defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#8e7dff"/><stop offset=".5" stop-color="#4fb3ff"/><stop offset="1" stop-color="#3ef0b0"/></linearGradient></defs>
+          <path class="track" d="M20 105 A80 80 0 0 1 180 105"/>
+          <path class="arc" d="M20 105 A80 80 0 0 1 180 105"/>
+        </svg>
+        <div class="read"><b data-count="9.7" data-dec="1">0</b><small>Mbps</small></div>
+      </div>
       <h3>Know your real speed.</h3>
       <p>A built-in line test shows the true maximum of your internet, VPN on or off.</p>
-    </article>
-    <article class="tile tile-wide reveal">
-      <div class="tile-art art-free">Free</div>
+    </article></div>
+    <div class="cell reveal"><article class="tile">
+      <div class="art art-free"><b>Free</b><div class="pills"><span>No account</span><span>No ads</span><span>No trial</span></div></div>
       <h3>Free for everyone. Really.</h3>
-      <p>No sign-up, no trial, no “premium”. Download, double-click, connect. Pulsar is a gift — use it, share it.</p>
-    </article>
+      <p>Download, double-click, connect. Pulsar is a gift — use it, share it.</p>
+    </article></div>
   </div>
 </section>
 

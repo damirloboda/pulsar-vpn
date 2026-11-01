@@ -30,11 +30,11 @@ document.querySelectorAll(".reveal, .reveal-device").forEach((el) => {
 });
 
 function countUp(el) {
-  const target = +el.dataset.count;
+  const target = +el.dataset.count, dec = +(el.dataset.dec || 0);
   const t0 = performance.now(), dur = 1400;
   const step = (now) => {
     const p = Math.min(1, (now - t0) / dur);
-    el.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
+    el.textContent = (target * (1 - Math.pow(1 - p, 4))).toFixed(dec);
     if (p < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
@@ -88,12 +88,22 @@ function frame() {
 }
 if (!still) requestAnimationFrame(frame);
 
-/* cursor spotlight on cards */
+/* cursor spotlight on cards; feature cards also tilt toward the pointer */
 document.querySelectorAll(".tile, .steps li").forEach((el) => {
+  const tilt = fine && !still && el.classList.contains("tile");
   el.addEventListener("pointermove", (e) => {
     const r = el.getBoundingClientRect();
-    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
-    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    el.style.setProperty("--mx", `${x}px`);
+    el.style.setProperty("--my", `${y}px`);
+    if (tilt) {
+      el.style.setProperty("--ry", `${(x / r.width - 0.5) * 8}deg`);
+      el.style.setProperty("--rx", `${(0.5 - y / r.height) * 6}deg`);
+    }
+  });
+  if (tilt) el.addEventListener("pointerleave", () => {
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--ry", "0deg");
   });
 });
 
