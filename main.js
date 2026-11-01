@@ -14,6 +14,8 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const range = (p, a, b) => clamp((p - a) / (b - a));         // progress of p between a and b
 const smooth = (t) => t * t * (3 - 2 * t);
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const settle = (t) => 1 + 2.4 * Math.pow(t - 1, 3) + 1.4 * Math.pow(t - 1, 2);   // eases out past 1, then settles back
+const lerp = (a, b, t) => a + (b - a) * t;
 const $ = (s) => document.querySelector(s);
 
 /* ---------- reveal ---------- */
@@ -22,8 +24,6 @@ const io = new IntersectionObserver((entries) => {
     if (!e.isIntersecting) continue;
     e.target.classList.add("in");
     io.unobserve(e.target);
-    e.target.querySelectorAll("[data-to]").forEach(countTo);
-    e.target.querySelectorAll("[data-count]").forEach(countTo);
   }
 }, { threshold: 0.15 });
 document.querySelectorAll(".rise").forEach((el) => {
@@ -31,75 +31,92 @@ document.querySelectorAll(".rise").forEach((el) => {
   el.style.setProperty("--d", `${Math.min(sibs.indexOf(el), 5) * 0.08}s`);
   io.observe(el);
 });
-function countTo(el) {
-  const target = +(el.dataset.to ?? el.dataset.count), dec = +(el.dataset.dec || 0);
-  if (!target) { el.textContent = "0"; return; }
-  const t0 = performance.now(), dur = 1600;
-  const step = (now) => {
-    const p = Math.min(1, (now - t0) / dur);
-    el.textContent = (target * easeOut(p)).toFixed(dec);
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
 
-/* ---------- pinned scenes: progress through a tall section, softened so wheel steps glide ---------- */
+/* ---------- pinned scenes: progress through a tall section, glided so wheel steps feel soft ---------- */
 const scenes = [...document.querySelectorAll("[data-scene]")].map((el) => ({ el, p: 0 }));
 const target = (el) => { const r = el.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
 
-// scene 1: the laptop opens a crack of light, boots, then we fly into its screen
-const laptop = $("#laptop"), lid = $("#lid"), intro = $("#intro"), lead = $("#lead"), hint = $("#hint");
-const boot = $("#boot"), bootbar = $("#bootbar"), desk = $("#desk"), glare = $("#glare"), leak = $("#leak");
+/* ===== scene 1: a laptop opens on Pulsar VPN — exposed, racing servers, protected — then we fly in ===== */
+const pin1 = $("#top .pin"), laptop = $("#laptop"), lid = $("#lid"), glare = $("#glare"), intro = $("#intro"), hint = $("#hint");
+const vpn = $("#vpn"), vstate = $("#vstate"), vtitle = $("#vtitle"), vip = $("#vip"), vsrv = $("#vsrv"), vping = $("#vping"), vbtnTxt = $("#vbtnTxt"), arc = $("#arc");
+const capsA = [$("#scapA"), $("#scapB"), $("#scapC")];
 const LW = 760, LH = 470;
 let fit = 1;
 
-// a real keyboard: six rows, wide modifiers, a long space bar
-const ROWS = [["", 13, "w15"], ["w15", 12, "w15"], ["w18", 11, "w22"], ["w22", 10, "w22"], ["", 3, "w6", 4]];
-$("#keys").innerHTML = [[0, 14]].concat(ROWS).map((r, i) => {
-  if (i === 0) return `<div class="krow" style="flex:.7">${'<i class="k"></i>'.repeat(14)}</div>`;
-  const [lead0, n, tail, n2] = r;
-  if (tail === "w6") return `<div class="krow">${'<i class="k"></i>'.repeat(n)}<i class="k w6"></i>${'<i class="k"></i>'.repeat(n2)}</div>`;
-  return `<div class="krow">${lead0 ? `<i class="k ${lead0}"></i>` : ""}${'<i class="k"></i>'.repeat(n)}<i class="k ${tail}"></i></div>`;
+// a real keyboard: function row, number row, three letter rows, then the space-bar row
+$("#keys").innerHTML = [
+  { n: 14, small: true }, { n: 13, tail: "w15" }, { head: "w15", n: 12, tail: "w15" },
+  { head: "w18", n: 11, tail: "w22" }, { head: "w22", n: 10, tail: "w22" }, { n: 3, space: true, after: 4 },
+].map((r) => {
+  const k = (c = "") => `<i class="k ${c}"></i>`;
+  const keys = r.space ? k().repeat(r.n) + k("w6") + k().repeat(r.after) : (r.head ? k(r.head) : "") + k().repeat(r.n) + (r.tail ? k(r.tail) : "");
+  return `<div class="krow"${r.small ? ' style="flex:.7"' : ""}>${keys}</div>`;
 }).join("");
 
 // the title arrives letter by letter
 const word = $("#word");
-word.innerHTML = [...word.textContent].map((c, i) => `<span class="ch" style="--i:${i}">${c}</span>`).join("");
+word.innerHTML = [...word.textContent].map((c, i) => c === " " ? "&nbsp;" : `<span class="ch" style="--i:${i}">${c}</span>`).join("");
 
-function renderOpen(p) {
-  const open = easeOut(range(p, 0.03, 0.4));
-  const zoom = smooth(range(p, 0.55, 0.95));
-  // we look down at the laptop (theta); the lid starts a crack open and opens until it faces us
-  const theta = (32 - 16 * open) * (1 - zoom);
-  const lidDeg = (-84 + 100 * open) * (1 - zoom);
-  lid.style.transform = `rotateX(${lidDeg}deg)`;
-  // phones: fill the width, so the app on the screen stays in view
-  const Z = innerWidth <= 760 ? innerWidth / ((LW - 22) * fit) : Math.max(innerWidth / ((LW - 22) * fit), innerHeight / ((LH - 41) * fit)) * 1.02;
-  const scale = fit * (1 + (Z - 1) * zoom);
-  laptop.style.transform = `translateY(${(1 - open) * 5}vh) rotateX(${-theta}deg) scale(${scale})`;
-
-  // light: leaking from the gap, then the screen boots (logo, bar), then the desktop
-  const on = smooth(range(p, 0.14, 0.34));
-  laptop.style.setProperty("--on", on.toFixed(3));
-  leak.style.opacity = (0.9 * (1 - smooth(range(p, 0.02, 0.16)))).toFixed(3);
-  const bootIn = smooth(range(p, 0.12, 0.2)), bootOut = smooth(range(p, 0.3, 0.38));
-  boot.style.opacity = (bootIn * (1 - bootOut)).toFixed(3);
-  bootbar.style.transform = `scaleX(${range(p, 0.17, 0.3).toFixed(3)})`;
-  desk.style.opacity = bootOut.toFixed(3);
-  desk.style.transform = `scale(${1.06 - 0.06 * bootOut})`;
-  glare.style.transform = `translateX(${(1 - open) * 30 - zoom * 25}%)`;
-
-  const gone = smooth(range(p, 0.04, 0.2));
-  intro.style.opacity = 1 - gone;
-  intro.style.transform = `translateY(${-70 * gone}px) scale(${1 - 0.06 * gone})`;
-  hint.style.opacity = 1 - smooth(range(p, 0, 0.06));
-  const show = smooth(range(p, 0.34, 0.44)) * (1 - smooth(range(p, 0.52, 0.6)));
-  lead.style.opacity = show;
-  lead.style.transform = `translateY(${(1 - show) * 24}px)`;
-  lead.style.pointerEvents = show > 0.5 ? "auto" : "none";
+// what the screen says while Pulsar races the servers, then where it lands
+const RACE = [["Warsaw", "26 ms"], ["Amsterdam", "31 ms"], ["Tokyo", "240 ms — too slow"], ["Prague", "34 ms"], ["Frankfurt", "18 ms"]];
+let shownState = "";
+function setState(s, scanT) {
+  if (s !== shownState) {
+    shownState = s;
+    vpn.dataset.state = s;
+    vstate.textContent = s === "off" ? "Not protected" : s === "scan" ? "Connecting" : "Protected";
+    vtitle.textContent = s === "off" ? "Your IP is visible" : s === "scan" ? "Finding the fastest server" : "You’re protected";
+    vip.textContent = s === "on" ? "Hidden" : "203.0.113.42";
+    vbtnTxt.textContent = s === "off" ? "Tap to connect" : s === "scan" ? "Connecting…" : "Connected";
+  }
+  if (s === "scan") {
+    const [city, ms] = RACE[Math.min(RACE.length - 1, Math.floor(scanT * RACE.length))];
+    vsrv.textContent = city; vping.textContent = ms;
+  } else if (s === "on") { vsrv.textContent = "Frankfurt"; vping.textContent = "18 ms"; }
+  else { vsrv.textContent = "—"; vping.textContent = "—"; }
 }
 
-// scene 2: the app turns while three captions take turns; at the third it connects
+function caption(el, a) {
+  el.style.opacity = a.toFixed(3);
+  el.style.transform = `translateY(${((1 - a) * 26).toFixed(1)}px)`;
+  el.style.filter = a > 0.98 || a < 0.02 ? "none" : `blur(${((1 - a) * 8).toFixed(1)}px)`;
+  el.style.visibility = a < 0.01 ? "hidden" : "visible";
+}
+
+function renderOpen(p) {
+  // the lid opens with a soft settle while the camera swings from the side to the front
+  const o = range(p, 0.02, 0.24), open = settle(o);
+  const zoom = smooth(range(p, 0.8, 0.98));
+  const theta = lerp(34, 15, easeOut(o)) * (1 - zoom);           // how far we look down at it
+  const phi = lerp(innerWidth <= 760 ? -8 : -14, 0, smooth(range(p, 0.0, 0.26))) * (1 - zoom);
+  lid.style.transform = `rotateX(${(lerp(-84, 15, open)) * (1 - zoom)}deg)`;
+  const Z = innerWidth <= 760 ? innerWidth / ((LW - 22) * fit) : Math.max(innerWidth / ((LW - 22) * fit), innerHeight / ((LH - 41) * fit)) * 1.02;
+  const rise = lerp(-17, 0, easeOut(o));   // closed, it sits higher so all of it is in view
+  laptop.style.transform = `translateY(${rise}vh) rotateX(${-theta}deg) rotateY(${phi}deg) scale(${fit * lerp(innerHeight < 720 ? 0.58 : 0.68, 1, easeOut(o)) * (1 + (Z - 1) * zoom)})`;   // it also comes closer as it opens
+  glare.style.transform = `translateX(${(1 - easeOut(o)) * 34 - zoom * 30}%)`;
+
+  // screen light; its colour turns from violet to green once protected
+  laptop.style.setProperty("--on", smooth(range(p, 0.12, 0.22)).toFixed(3));
+  const g = smooth(range(p, 0.56, 0.62));
+  pin1.style.setProperty("--gc", `${Math.round(lerp(142, 62, g))}, ${Math.round(lerp(125, 240, g))}, ${Math.round(lerp(255, 176, g))}`);
+
+  // the screen's story
+  setState(p < 0.4 ? "off" : p < 0.58 ? "scan" : "on", range(p, 0.4, 0.56));
+  arc.style.strokeDashoffset = (160 * (1 - smooth(range(p, 0.44, 0.58)))).toFixed(1);
+
+  // words: title → three captions
+  const gone = smooth(range(p, 0.03, 0.14));
+  intro.style.opacity = 1 - gone;
+  intro.style.transform = `translateY(${-50 * gone}px) scale(${1 - 0.05 * gone})`;
+  intro.style.visibility = gone > 0.99 ? "hidden" : "visible";
+  hint.style.opacity = 1 - smooth(range(p, 0, 0.05));
+  caption(capsA[0], smooth(range(p, 0.22, 0.27)) * (1 - smooth(range(p, 0.36, 0.4))));
+  caption(capsA[1], smooth(range(p, 0.4, 0.45)) * (1 - smooth(range(p, 0.54, 0.58))));
+  caption(capsA[2], smooth(range(p, 0.59, 0.64)) * (1 - smooth(range(p, 0.78, 0.82))));
+  capsA[2].querySelector(".buy").style.pointerEvents = p > 0.6 && p < 0.79 ? "auto" : "none";
+}
+
+/* ===== scene 2: the real app turns while three captions take turns; at the third it connects ===== */
 const caps = [...document.querySelectorAll(".cap")];
 const dots = [...document.querySelectorAll(".dots i")];
 const heroApp = $("#heroApp"), phone = heroApp.querySelector(".phone");
@@ -113,12 +130,12 @@ function renderApp(p) {
     if (i === n - 1) a = smooth(range(local, -0.04, 0.16));
     c.style.opacity = a.toFixed(3);
     c.style.transform = `translateY(${(0.45 - clamp(local, -0.3, 1.3)) * 44}px)`;
-    c.style.filter = a > 0.98 ? "none" : `blur(${((1 - a) * 8).toFixed(1)}px)`;
+    c.style.filter = a > 0.98 || a < 0.02 ? "none" : `blur(${((1 - a) * 8).toFixed(1)}px)`;
   });
   const idx = Math.min(n - 1, Math.floor(p * n));
   dots.forEach((d, i) => d.classList.toggle("on", i === idx));
   phone.style.transform = `scale(${pf * (0.94 + 0.08 * p)}) rotateY(${-16 + 30 * p}deg) rotateX(${7 - 11 * p}deg)`;
-  if (p > 0.7 && !connected) {
+  if (p > 0.72 && !connected) {
     connected = true;
     heroApp.classList.add("on");
     try { $("#storyApp").contentDocument.getElementById("orb").click(); } catch (_) {}
@@ -126,20 +143,20 @@ function renderApp(p) {
 }
 
 function measure() {
-  fit = Math.min(1, innerWidth * 0.84 / LW, innerHeight * 0.42 / LH);
   const narrow = innerWidth <= 760;
-  pf = narrow ? Math.min((innerHeight - 330) / 812, (innerWidth - 44) / 420) : Math.min(1, innerHeight * 0.8 / 812, (innerWidth / 2 - 40) / 420);
+  fit = Math.min(1, innerWidth * (narrow ? 0.9 : 0.7) / LW, innerHeight * 0.4 / LH);
+  const room = innerHeight - 52;   // the product bar covers the top of the pinned scene
+  pf = narrow ? Math.min((room - 290) / 812, (innerWidth - 44) / 420) : Math.min(1, room * 0.84 / 812, (innerWidth / 2 - 40) / 420);
   pf = Math.max(0.3, pf);
   heroApp.style.width = `${420 * pf}px`;
   heroApp.style.height = `${812 * pf}px`;
 }
 addEventListener("resize", measure);
 measure();
-Object.assign(phone.style, { position: "absolute", left: "50%", top: "50%", margin: "-406px 0 0 -210px" });
 
 let last = performance.now();
 function frame(now) {
-  const k = still ? 1 : 1 - Math.exp(-Math.min(0.05, (now - last) / 1000) * 10);  // same glide at 60 or 144 Hz
+  const k = still ? 1 : 1 - Math.exp(-Math.min(0.05, (now - last) / 1000) * 9);   // same glide at 60 or 144 Hz
   last = now;
   for (const s of scenes) {
     const t = target(s.el);
@@ -152,7 +169,7 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 
-/* ---------- the demo apps' liquid wallpaper sleeps while off-screen ---------- */
+/* ---------- the demo app's liquid wallpaper sleeps while off-screen ---------- */
 document.querySelectorAll("iframe[src*='demo/']").forEach((f) => {
   new IntersectionObserver(([e]) => {
     try { f.contentWindow.eval(`typeof Liquid !== "undefined" && Liquid.pause(${!e.isIntersecting})`); } catch (_) {}
