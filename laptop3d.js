@@ -270,22 +270,26 @@ function start() {
     const p = window.__p1 || 0, t = now / 1000, aspect = camera.aspect;
 
     const o = range(p, 0.02, 0.24), open = settle(o), zoom = smooth(range(p, 0.8, 0.98));
-    pivot.rotation.x = -lerp(5, 106, open) * DEG;
-    const on = smooth(range(p, 0.12, 0.22)), gmix = smooth(range(p, 0.56, 0.62));
+    // it starts half open with the screen already lit, so the first frame shows light, not a closed slab
+    pivot.rotation.x = -lerp(64, 106, open) * DEG;
+    const on = lerp(0.88 + 0.08 * Math.sin(t * 1.6), 1, smooth(range(p, 0, 0.2))), gmix = smooth(range(p, 0.56, 0.62));
     glowCol.copy(violet).lerp(green, gmix);
     dispMat.color.setScalar(on);
     backlight.material.color.copy(glowCol); backlight.material.opacity = on * 0.85;
-    deskGlow.material.color.copy(glowCol); deskGlow.material.opacity = on * 0.32;
+    deskGlow.material.color.copy(glowCol); deskGlow.material.opacity = on * 0.4;
     screenLight.color.copy(glowCol); screenLight.intensity = on * 6;
     const state = p < 0.4 ? "off" : p < 0.58 ? "scan" : "on";
     draw(false, state, range(p, 0.4, 0.56), smooth(range(p, 0.44, 0.58)), t);
 
     // where the camera is: closed (high, from the side) → open (front) → in front of the screen
-    const fitW = aspect < 1.25 ? 4.2 / (2 * Math.tan(15 * DEG) * aspect) : 0;   // keep it all in view on narrow screens
+    const fitW = aspect < 1.25 ? 4.6 / (2 * Math.tan(15 * DEG) * aspect) : 0;   // keep it all in view on narrow screens
     const sw = smooth(range(p, 0, 0.26));
-    const closedT = new THREE.Vector3(0, 0.1, 0.15), openT = new THREE.Vector3(0, 0.82, -0.42);
+    const closedT = new THREE.Vector3(0, 0.5, -0.25), openT = new THREE.Vector3(0, 0.82, -0.42);
     tgt.lerpVectors(closedT, openT, sw);
-    const az = lerp(-28, 0, sw), el = lerp(38, 12, sw), dist = Math.max(lerp(9.2, 8.6, sw), fitW);
+    // before you scroll the camera hangs low at three-quarters and drifts, so the shot is alive
+    const idle = 1 - sw;
+    const az = lerp(aspect < 1 ? -16 : -34, 0, sw) + Math.sin(t * 0.45) * (aspect < 1 ? 3 : 5) * idle, el = lerp(17, 12, sw) + Math.sin(t * 0.33) * 2 * idle;
+    const dist = Math.max(lerp(10.2, 8.6, sw), fitW);
     pos.copy(orbit(tgt, az, el, dist));
     if (zoom > 0) {
       laptop.updateMatrixWorld(true);
@@ -298,7 +302,7 @@ function start() {
     }
     camera.position.copy(pos); camera.lookAt(tgt);
     // leave room for the words above it (less as we fly in)
-    const shift = -H2 * lerp(aspect < 1 ? 0.07 : 0.09, 0, zoom);
+    const shift = -H2 * lerp(aspect < 1 ? lerp(0.13, 0.07, sw) : lerp(0.2, 0.09, sw), 0, zoom);   // below the title at first
     camera.setViewOffset(W2, H2, 0, shift, W2, H2);
 
     renderer.render(scene, camera);
