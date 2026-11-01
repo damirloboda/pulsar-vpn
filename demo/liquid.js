@@ -152,7 +152,7 @@ const Liquid = (() => {
   let cur = PALETTES.idle.map(hex), target = cur.map((c) => c.slice());
   const mouse = { x: .5, y: .5, px: .5, py: .5 };
   let lastMove = -1e9, burst = [0, 0, 0], t = Math.random() * 100, last = 0, lastDraw = 0;
-  let src = 0, avgDt = 16, idleFps = 30, running = false, holdUntil = 0;
+  let src = 0, avgDt = 16, idleFps = 30, running = false, holdUntil = 0, paused = false;
 
   function step(now) {
     if (!running) return;
@@ -209,7 +209,7 @@ const Liquid = (() => {
     canvas.classList.add("on");
   }
   function start() {
-    if (running || document.hidden) return;
+    if (running || paused || document.hidden) return;
     running = true; lastDraw = 0;
     requestAnimationFrame(step);
   }
@@ -232,5 +232,7 @@ const Liquid = (() => {
   return {
     setState(state) { target = PALETTES[paletteFor(state)].map(hex); },
     hold(ms) { holdUntil = performance.now() + ms; },
+    // the website stops it while the canvas is scrolled out of sight
+    pause(on) { paused = on; on ? stop() : start(); },
   };
 })();

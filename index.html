@@ -23,6 +23,7 @@
 </script>
 </head>
 <body>
+<canvas id="liquid" aria-hidden="true"></canvas>
 <div class="progress" id="progress"></div>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 
@@ -75,6 +76,22 @@
 
 <section class="statement">
   <p class="reveal-words">Most VPNs make you sign up, pay, and pick a server from a list of hundreds. Pulsar measures every server from your own connection, throws out anything slow, and simply takes you to the best one.</p>
+</section>
+
+<section class="story" id="story">
+  <div class="story-pin">
+    <div class="story-visual" aria-hidden="true">
+      <div class="field" id="field"></div>
+      <svg class="beam" viewBox="-200 -200 400 400"><line id="beam" x1="0" y1="0" x2="0" y2="0"/></svg>
+      <div class="sorb"><span class="sorb-ms" id="sorbMs">—</span></div>
+    </div>
+    <div class="story-copy">
+      <div class="sstep"><small>01 · Scan</small><h2>Every server.<br>Measured from you.</h2><p>Pulsar pings every free server straight from your own Wi-Fi in a couple of seconds — not from some data centre far away.</p></div>
+      <div class="sstep"><small>02 · Rank</small><h2>Slow ones never<br>make the list.</h2><p>Anything over 150 ms is thrown out. The rest are ranked for gaming or for raw speed.</p></div>
+      <div class="sstep"><small>03 · Connect</small><h2>Connected.<br>Before you blink.</h2><p>One tap takes you to the best one. If it ever drops, Pulsar quietly moves you to the next.</p></div>
+      <div class="story-dots"><i></i><i></i><i></i></div>
+    </div>
+  </div>
 </section>
 
 <section class="features" id="features">
@@ -159,11 +176,23 @@
   <details class="reveal"><summary>Why does Windows warn me?</summary><p>Windows shows that message for apps that aren't signed with a paid certificate. Pulsar is independently made; click “More info”, then “Run anyway”.</p></details>
 </section>
 
+<section class="final" id="final">
+  <div class="final-orb" id="finalOrb"></div>
+  <h2 class="final-title reveal">Ready when you are.</h2>
+  <p class="final-sub reveal">Free. 11 MB. No account. Ever.</p>
+  <a class="btn-primary center reveal" href="#" data-download>
+    <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+    Download for Windows
+  </a>
+</section>
+
 <footer class="footer">
   <span class="mark"></span>
   <p>Pulsar VPN · Made by Damir Loboda · © 2026</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="demo/liquid.js"></script>
 <script src="config.js"></script>
 <script src="main.js"></script>
 <script src="stats.js"></script>

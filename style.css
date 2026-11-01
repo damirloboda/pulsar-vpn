@@ -288,3 +288,77 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
   .device-screen { height: 557px; }
   .device-screen iframe { transform: scale(.714); }
 }
+
+/* ---------- living liquid behind the hero (the app's own wallpaper shader) ---------- */
+#liquid { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -3; pointer-events: none; opacity: 0; transition: opacity 1.2s;
+  -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 95%); mask-image: linear-gradient(180deg, #000 30%, transparent 95%); }
+#liquid.on { opacity: var(--lq, .55); transition: none; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+/* ---------- pinned story: scan → rank → connect, driven by scroll ---------- */
+.story { position: relative; height: 380vh; margin-top: 60px; }
+.story-pin { position: sticky; top: 0; height: 100vh; max-width: 1120px; margin: 0 auto; padding: 0 24px;
+  display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; }
+.story-visual { position: relative; width: min(46vw, 520px); aspect-ratio: 1; justify-self: center; display: grid; place-items: center; }
+.field { position: absolute; inset: 0; }
+.field i { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 50%;
+  background: #2a2a31; transform: translate(var(--x), var(--y)) scale(.8);
+  transition: transform 1s var(--ease), background .5s, box-shadow .5s, opacity .8s var(--ease); }
+.field i.seen { background: #8f8fa0; transform: translate(var(--x), var(--y)) scale(1); }
+.field i.good { background: var(--a3); box-shadow: 0 0 12px rgba(79, 179, 255, .8); }
+.field i.cut { background: #ff4d64; opacity: 0; transform: translate(calc(var(--x) * 1.35), calc(var(--y) * 1.35)) scale(.4); }
+.field i.best { background: var(--a2); box-shadow: 0 0 0 6px rgba(62, 240, 176, .18), 0 0 26px var(--a2); transform: translate(var(--x), var(--y)) scale(1.8); }
+.field i.fade { opacity: .25; }
+.beam { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.beam line { stroke: var(--a2); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 5 9; filter: drop-shadow(0 0 6px var(--a2));
+  animation: flow .9s linear infinite; opacity: 0; transition: opacity .6s; }
+.beam line.on { opacity: 1; }
+.sorb { position: relative; width: 31%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--a1) 42%, #22186e); box-shadow: 0 0 80px rgba(142, 125, 255, .55), inset 0 -10px 24px rgba(0, 0, 0, .35);
+  transition: background 1s, box-shadow 1s, transform 1s var(--ease); }
+.sorb::before, .sorb::after { content: ""; position: absolute; inset: -14%; border-radius: 50%; border: 1px solid rgba(142, 125, 255, .35); animation: pulse 3.2s cubic-bezier(.2, .6, .3, 1) infinite; }
+.sorb::after { animation-delay: 1.6s; }
+.story[data-stage="0"] .sorb::before, .story[data-stage="0"] .sorb::after { animation-duration: 1.4s; }
+.story[data-stage="2"] .sorb { background: radial-gradient(circle at 35% 30%, #fff, var(--a2) 42%, #0b5a44); box-shadow: 0 0 110px rgba(62, 240, 176, .6), inset 0 -10px 24px rgba(0, 0, 0, .3); transform: scale(1.08); }
+.story[data-stage="2"] .sorb::before, .story[data-stage="2"] .sorb::after { border-color: rgba(62, 240, 176, .45); }
+.sorb-ms { font-size: clamp(16px, 2vw, 24px); font-weight: 800; letter-spacing: -.03em; color: #fff; text-shadow: 0 2px 12px rgba(0, 0, 0, .35); font-variant-numeric: tabular-nums; }
+
+.story-copy { position: relative; height: 340px; }
+.sstep { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+  opacity: 0; transform: translateY(40px); filter: blur(10px); pointer-events: none;
+  transition: opacity .8s var(--ease), transform 1s var(--ease), filter .8s var(--ease); }
+.sstep.up { transform: translateY(-40px); }
+.sstep.on { opacity: 1; transform: none; filter: none; }
+.sstep small { font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--a3); margin-bottom: 14px; }
+.story[data-stage="2"] .sstep small { color: var(--a2); }
+.sstep h2 { font-size: clamp(36px, 4.6vw, 58px); font-weight: 800; letter-spacing: -.045em; line-height: 1.04; }
+.sstep p { margin-top: 18px; font-size: 19px; line-height: 1.5; color: var(--dim); max-width: 440px; }
+.story-dots { position: absolute; left: 0; bottom: -10px; display: flex; gap: 8px; }
+.story-dots i { width: 22px; height: 4px; border-radius: 9px; background: #2a2a31; transition: background .5s, width .6s var(--ease); }
+.story-dots i.on { width: 44px; background: var(--fg); }
+
+/* ---------- final call to action: the orb rises as you arrive ---------- */
+.final { position: relative; margin-top: 200px; padding: 140px 24px 40px; text-align: center; overflow: hidden; }
+.final-orb { position: absolute; left: 50%; top: 0; width: 520px; height: 520px; margin-left: -260px; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, .9), rgba(142, 125, 255, .8) 22%, rgba(79, 179, 255, .35) 45%, transparent 68%);
+  transform: translateY(var(--fy, 160px)) scale(var(--fs, .6)); opacity: var(--fo, 0); will-change: transform, opacity; }
+.final-title { font-size: clamp(48px, 8vw, 104px); font-weight: 800; letter-spacing: -.055em; line-height: 1; }
+.final-sub { margin-top: 18px; font-size: 21px; color: var(--dim); font-weight: 500; }
+
+@media (max-width: 880px) {
+  .story { height: 340vh; }
+  .story-pin { grid-template-columns: 1fr; grid-template-rows: auto auto; align-content: center; gap: 10px; }
+  .story-visual { width: min(78vw, 360px); }
+  .story-copy { height: 250px; text-align: center; }
+  .sstep { align-items: center; }
+  .sstep p { font-size: 16px; }
+  .story-dots { left: 50%; transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story { height: auto; }
+  .story-pin { position: static; height: auto; padding: 80px 24px; }
+  .sstep { position: static; opacity: 1; transform: none; filter: none; margin-bottom: 40px; }
+  .story-copy { height: auto; }
+  .story-dots { display: none; }
+}
