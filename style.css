@@ -29,7 +29,7 @@ section { scroll-margin-top: 52px; }
 .pbar { position: sticky; top: 0; z-index: 50; height: 52px; display: flex; align-items: center; gap: 24px; padding: 0 max(22px, calc(50% - 490px));
   background: rgba(14, 14, 16, .92); border-bottom: 1px solid rgba(255, 255, 255, .08); }
 .pname { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 600; letter-spacing: -.02em; margin-right: auto; }
-.pname img { width: 24px; height: 24px; border-radius: 6px; }
+.pname .plogo { width: 26px; height: 26px; }
 .pbar nav { display: flex; gap: 24px; font-size: 12.5px; color: #d2d2d7; }
 .pbar nav a:hover { color: #fff; }
 /* buttons: a violet-blue gradient with a lit top edge; on hover they lift, glow and a light sweeps across */
@@ -101,7 +101,7 @@ section { scroll-margin-top: 52px; }
               radial-gradient(80% 70% at 28% 18%, rgba(255, 255, 255, .22), transparent 60%),
               linear-gradient(158deg, #6c6c76, #44444c 45%, #2a2a30);
   box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .24), inset 0 -26px 50px rgba(0, 0, 0, .35); }
-.lid-out img { width: 66px; height: 66px; border-radius: 15px; box-shadow: 0 0 34px rgba(142, 125, 255, .55), 0 0 0 1px rgba(255, 255, 255, .14); }
+.lid-out img { width: 66px; height: 66px; border-radius: 15px; box-shadow: 0 0 34px rgba(220, 225, 240, .22), 0 0 0 1px rgba(255, 255, 255, .14); }
 .lid-edge { position: absolute; left: 10px; right: 10px; top: 0; height: 6px; transform-origin: 50% 0; transform: rotateX(-90deg); border-radius: 3px;
   background: linear-gradient(90deg, #3a3a41, #9a9aa6 50%, #3a3a41); }
 .lid-side { position: absolute; top: 12px; bottom: 6px; width: 6px; background: linear-gradient(180deg, #8a8a95, #3a3a41); }
@@ -234,7 +234,7 @@ section { scroll-margin-top: 52px; }
 
 /* ---------- get it ---------- */
 .get { padding: 190px 24px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.ficon { width: 128px; height: 128px; border-radius: 29px; box-shadow: 0 0 80px rgba(142, 125, 255, .55), 0 30px 60px rgba(0, 0, 0, .6); }
+.ficon { width: 140px; height: 140px; cursor: pointer; box-shadow: 0 0 90px rgba(220, 225, 240, .16), 0 30px 60px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(255, 255, 255, .08); }
 .get h2 { margin-top: 28px; font-size: clamp(56px, 8vw, 116px); font-weight: 700; letter-spacing: -.055em; line-height: .95;
   background: linear-gradient(180deg, #fff 30%, #a9a9b4); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .ftag { margin-top: 12px; font-size: clamp(22px, 2.4vw, 32px); font-weight: 600; letter-spacing: -.025em; background: linear-gradient(95deg, #c3bbff, #74b8ff 50%, #6ff0c8); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -243,6 +243,9 @@ section { scroll-margin-top: 52px; }
 .mini { list-style: none; margin-top: 54px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .mini li { display: flex; align-items: center; gap: 10px; padding: 10px 18px 10px 10px; border-radius: 99px; background: #161617; font-size: 15px; font-weight: 600; }
 .mini b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #2a2a2e; font-size: 13px; }
+.alt { margin-top: 8px; font-size: 14px; color: var(--gray); }
+.alt a { color: #74b8ff; text-decoration: none; }
+.alt a:hover { text-decoration: underline; }
 .fine { margin-top: 26px; max-width: 560px; font-size: 13.5px; color: var(--gray); line-height: 1.6; }
 .fine b { color: #d2d2d7; font-weight: 600; }
 
@@ -337,3 +340,18 @@ section { scroll-margin-top: 52px; }
   *, *::before, *::after { animation: none !important; }
   .rise { opacity: 1; transform: none; transition: none; }
 }
+
+/* ---------- the logo: on hover the ring orbits the P (it passes in front of the stem and behind the bowl) ---------- */
+@property --phi { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+.plogo { position: relative; display: inline-block; flex: none; border-radius: 22.6%; overflow: hidden; isolation: isolate; }
+.plogo > img, .plogo .orb, .plogo .orb img { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* the ring's major axis splits it into the far half (under the P) and the near half (over it) */
+.plogo .far { clip-path: polygon(0 0, 100% 0, 100% 24.93%, 0 76.63%); }
+.plogo .near { clip-path: polygon(0 76.63%, 100% 24.93%, 100% 100%, 0 100%); }
+/* straighten the tilted ellipse into a circle, turn it, tilt it back: the ring slides along its own orbit */
+.plogo .orb img { transform-origin: 53.5% 48.97%; will-change: transform;
+  transform: rotate(-27.334deg) scaleY(.17437) rotate(var(--phi)) scaleY(5.7349) rotate(27.334deg); }
+.plogo > img:nth-of-type(2) { transition: filter .5s; }
+.plogo.spin { animation: orbit 1.5s cubic-bezier(.6, 0, .25, 1); }
+.plogo.spin > img:nth-of-type(2) { filter: brightness(1.15); }
+@keyframes orbit { to { --phi: 360deg; } }

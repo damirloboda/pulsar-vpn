@@ -3,33 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pulsar VPN — free, fast VPN for Windows. No account.</title>
-<meta name="description" content="Pulsar VPN is a free, fast VPN for Windows. One tap connects you to the fastest free server and hides your IP. No account, no ads, no registration.">
-<meta name="keywords" content="Pulsar VPN, free VPN, VPN for Windows, gaming VPN, fast VPN, no registration VPN">
+<title>Pulsar VPN — free, fast VPN for Windows and Mac. No account.</title>
+<meta name="description" content="Pulsar VPN is a free, fast VPN for Windows and Mac. One tap connects you to the fastest free server and hides your IP. No account, no ads, no registration.">
+<meta name="keywords" content="Pulsar VPN, free VPN, VPN for Windows, VPN for Mac, gaming VPN, fast VPN, no registration VPN">
 <meta name="author" content="Damir Loboda">
-<meta property="og:title" content="Pulsar VPN — free VPN for Windows">
+<meta property="og:title" content="Pulsar VPN — free VPN for Windows and Mac">
 <meta property="og:description" content="One tap. The fastest free server. You're protected. No account.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://damirloboda.github.io/pulsar-vpn/">
 <meta property="og:image" content="https://damirloboda.github.io/pulsar-vpn/icon-512.png">
 <meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://damirloboda.github.io/pulsar-vpn/">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611011904">
+<link rel="stylesheet" href="style.css?v=202611021240">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <noscript><style>.rise { opacity: 1 !important; transform: none !important; } .cap, .scap { opacity: 1 !important; position: static !important; }</style></noscript>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pulsar VPN","operatingSystem":"Windows 10, Windows 11","applicationCategory":"SecurityApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Damir Loboda"}}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pulsar VPN","operatingSystem":"Windows 10, Windows 11, macOS","applicationCategory":"SecurityApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Damir Loboda"}}
 </script>
 </head>
 <body>
 
 <header class="pbar" id="pbar">
-  <a class="pname" href="#top"><img src="icon.svg" alt="">Pulsar VPN</a>
+  <a class="pname" href="#top"><span class="plogo" aria-hidden="true"><img src="logo/bg.webp" alt=""><span class="orb far"><img src="logo/ring.webp" alt=""></span><img src="logo/p.webp" alt=""><span class="orb near"><img src="logo/ring.webp" alt=""></span></span>Pulsar VPN</a>
   <nav><a href="#top">How it protects you</a><a href="#app">The app</a><a href="#faq">FAQ</a></nav>
   <a class="buy" href="#" data-download>Download</a>
 </header>
@@ -42,7 +42,7 @@
     <canvas class="gl" id="gl" aria-label="A laptop running Pulsar VPN"></canvas>
 
     <div class="intro" id="intro">
-      <p class="eyebrow">Free VPN for Windows 10 &amp; 11</p>
+      <p class="eyebrow">Free VPN for Windows &amp; Mac</p>
       <h1 id="word">Pulsar VPN</h1>
       <p class="tag">One tap. Fastest server. You’re protected.</p>
     </div>
@@ -59,14 +59,14 @@
       <div class="laptop" id="laptop">
         <div class="lid" id="lid">
           <div class="lid-edge"></div><div class="lid-side l"></div><div class="lid-side r"></div>
-          <div class="lid-out"><img src="icon.svg" alt=""></div>
+          <div class="lid-out"><img src="logo/icon.png" alt=""></div>
           <div class="lid-in">
             <i class="cam"></i>
             <div class="screen" id="screen">
 
               <div class="vpn" id="vpn" data-state="off">
                 <div class="vbg"><i></i><i></i></div>
-                <div class="vtop"><img src="icon.svg" alt=""><b>Pulsar VPN</b><span class="vmode">Gaming mode</span></div>
+                <div class="vtop"><img src="logo/icon.png" alt=""><b>Pulsar VPN</b><span class="vmode">Gaming mode</span></div>
                 <div class="vglobe">
                   <svg viewBox="0 0 300 300" aria-hidden="true">
                     <defs>
@@ -131,7 +131,7 @@
     </div>
     <div class="hero-app" id="heroApp">
       <div class="phone">
-        <div class="appbar"><img src="icon.svg" alt=""><b>Pulsar VPN</b><i>&#8211;</i><i>&#10005;</i></div>
+        <div class="appbar"><img src="logo/icon.png" alt=""><b>Pulsar VPN</b><i>&#8211;</i><i>&#10005;</i></div>
         <div class="phoneview"><iframe id="storyApp" src="demo/index.html" title="Pulsar live demo" loading="lazy" scrolling="no"></iframe></div>
       </div>
       <div class="halo"></div>
@@ -148,15 +148,16 @@
 
 <!-- ============ 4. get it ============ -->
 <section class="get" id="get">
-  <img class="ficon rise" src="icon.svg" alt="">
+  <span class="plogo ficon rise" aria-hidden="true"><img src="logo/bg.webp" alt=""><span class="orb far"><img src="logo/ring.webp" alt=""></span><img src="logo/p.webp" alt=""><span class="orb near"><img src="logo/ring.webp" alt=""></span></span>
   <h2 class="rise">Pulsar VPN</h2>
   <p class="ftag rise">The fastest way out.</p>
-  <div class="rise"><a class="buy big" href="#" data-download>Download for Windows</a></div>
-  <p class="fnote rise">Free · 11 MB · Windows 10 &amp; 11</p>
+  <div class="rise"><a class="buy big" href="#" data-download data-mac="Download for Mac">Download for Windows</a></div>
+  <p class="fnote rise" data-mac="Free · 13 MB · Mac with Apple chip (M1 or newer)">Free · 11 MB · Windows 10 &amp; 11</p>
+  <p class="alt rise" id="alt"></p>
   <ol class="mini rise">
-    <li><b>1</b>Download</li><li><b>2</b>Double-click</li><li><b>3</b>Tap the orb</li>
+    <li><b>1</b>Download</li><li><b>2</b><span data-mac="Drag to Applications">Double-click</span></li><li><b>3</b>Tap the orb</li>
   </ol>
-  <p class="fine rise">Windows may say “Windows protected your PC” because Pulsar is new and independently made — click <b>More info → Run anyway</b>.</p>
+  <p class="fine rise" data-mac="The first time, macOS may say Pulsar can’t be opened because it’s new and independently made — open <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>.">Windows may say “Windows protected your PC” because Pulsar is new and independently made — click <b>More info → Run anyway</b>.</p>
 </section>
 
 <!-- ============ 5. faq ============ -->
@@ -181,12 +182,12 @@
     <details class="q rise" style="--qc:190,140,255">
       <summary><span class="qi qi-shield"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.4c0 4.7-3.1 8.4-7.5 10-4.4-1.6-7.5-5.3-7.5-10V6z"/><path class="tick" d="M8.6 12.3l2.4 2.4 4.6-4.8"/></svg></span>
         <span class="qt">Why does it ask for administrator rights?</span><span class="qx" aria-hidden="true"></span></summary>
-      <div class="qa"><p>Creating a VPN tunnel changes how Windows routes network traffic, which only an <b>administrator</b> may do. On first use Pulsar may install the free Cloudflare WARP or OpenVPN engine.</p></div>
+      <div class="qa"><p>Creating a VPN tunnel changes how your computer routes network traffic, which only an <b>administrator</b> may do. On first use Pulsar may install the free Cloudflare WARP or OpenVPN engine.</p></div>
     </details>
     <details class="q rise" style="--qc:255,181,71">
       <summary><span class="qi qi-warn"><svg viewBox="0 0 24 24"><g class="tri"><path d="M10.3 4.3L2.9 17.6A2 2 0 0 0 4.6 20.6h14.8a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 9.4v4.2M12 16.9h.01"/></g><g class="ok"><circle cx="12" cy="12" r="8.6"/><path d="M8.3 12.3l2.6 2.6 5-5.2"/></g></svg></span>
-        <span class="qt">Why does Windows warn me?</span><span class="qx" aria-hidden="true"></span></summary>
-      <div class="qa"><p>Windows shows that message for apps that aren&rsquo;t signed with a paid certificate. Pulsar is independently made &mdash; click <b>More info</b>, then <b>Run anyway</b>.</p></div>
+        <span class="qt" data-mac="Why does macOS block it at first?">Why does Windows warn me?</span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qa"><p data-mac="macOS blocks apps that aren’t signed with a paid Apple certificate. Pulsar is independently made — open <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>.">Windows shows that message for apps that aren&rsquo;t signed with a paid certificate. Pulsar is independently made &mdash; click <b>More info</b>, then <b>Run anyway</b>.</p></div>
     </details>
   </div>
 </section>
@@ -197,9 +198,9 @@
   <nav><a href="#top">How it protects you</a><a href="#app">The app</a><a href="#faq">FAQ</a><a href="https://github.com/damirloboda/pulsar-vpn">GitHub</a></nav>
 </footer>
 
-<script src="config.js?v=202611011904"></script>
-<script src="main.js?v=202611011904"></script>
-<script src="stats.js?v=202611011904"></script>
-<script type="module" src="laptop3d.js?v=202611011904"></script>
+<script src="config.js?v=202611021240"></script>
+<script src="main.js?v=202611021240"></script>
+<script src="stats.js?v=202611021240"></script>
+<script type="module" src="laptop3d.js?v=202611021240"></script>
 </body>
 </html>

@@ -4,12 +4,36 @@ const C = window.PULSAR || {};
 /* ---------- download links ---------- */
 // GitHub counts every download of a release asset, so the link goes straight to the file
 // (clicks are also counted per day in stats.js)
-const DOWNLOAD_URL = C.owner
-  ? `https://github.com/${C.owner}/${C.repo}/releases/latest/download/PulsarVPN.exe`
-  : "#";
-document.querySelectorAll("[data-download]").forEach((a) => { a.href = DOWNLOAD_URL; });
+// A Mac gets the .dmg (Apple chip by default; browsers can't tell Intel from Apple silicon, so
+// Intel Macs get a small link), everything else the Windows .exe. iPads also say "Macintosh".
+const REL = C.owner ? `https://github.com/${C.owner}/${C.repo}/releases/latest/download/` : "";
+const IS_MAC = /mac/i.test(`${navigator.userAgentData?.platform || ""} ${navigator.platform || ""}`)
+  && navigator.maxTouchPoints < 2;
+const FILES = { win: "PulsarVPN.exe", mac: "PulsarVPN-mac.dmg", intel: "PulsarVPN-mac-intel.dmg" };
+const dl = (k) => (REL ? REL + FILES[k] : "#");
+document.querySelectorAll("[data-download]").forEach((a) => { a.href = dl(IS_MAC ? "mac" : "win"); });
+if (IS_MAC) document.querySelectorAll("[data-mac]").forEach((el) => { el.innerHTML = el.dataset.mac; });
+const alt = document.getElementById("alt");
+if (alt) alt.innerHTML = IS_MAC
+  ? `Intel Mac? <a href="${dl("intel")}" data-download>Get this one</a> · <a href="${dl("win")}" data-download>Windows</a>`
+  : `Also on <a href="${dl("mac")}" data-download>Mac</a> · <a href="${dl("intel")}" data-download>Intel Mac</a>`;
 
 const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- logo: the ring makes one full orbit per hover (and the big one once when it scrolls in) ---------- */
+document.querySelectorAll(".plogo").forEach((el) => {
+  const spin = () => { if (!still) el.classList.add("spin"); };
+  (el.closest("a") || el).addEventListener("pointerenter", spin);
+  el.addEventListener("click", spin);
+  el.addEventListener("animationend", (e) => { if (e.animationName === "orbit") el.classList.remove("spin"); });
+});
+const bigLogo = document.querySelector(".ficon");
+if (bigLogo && "IntersectionObserver" in window) {
+  const io = new IntersectionObserver(([en]) => {
+    if (en.isIntersecting) { setTimeout(() => !still && bigLogo.classList.add("spin"), 500); io.disconnect(); }
+  }, { threshold: 0.8 });
+  io.observe(bigLogo);
+}
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const range = (p, a, b) => clamp((p - a) / (b - a));         // progress of p between a and b
 const smooth = (t) => t * t * (3 - 2 * t);

@@ -131,7 +131,7 @@ function start() {
   display.position.set(0, -0.003, 0.07); lid.add(display);
 
   // the logo on the back of the lid
-  const logoImg = new Image(); logoImg.src = "icon.svg";
+  const logoImg = new Image(); logoImg.src = "logo/icon.png";
   const logoCanvas = document.createElement("canvas"); logoCanvas.width = logoCanvas.height = 512;
   const logoTex = new THREE.CanvasTexture(logoCanvas); logoTex.colorSpace = THREE.SRGBColorSpace;
   logoImg.onload = () => { logoCanvas.getContext("2d").drawImage(logoImg, 0, 0, 512, 512); logoTex.needsUpdate = true; draw(true); };
