@@ -20,17 +20,111 @@ if (alt) alt.innerHTML = IS_MAC
 
 const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- logo: the ring makes one full orbit per hover (and the big one once when it scrolls in) ---------- */
+/* ---------- logo: the ring orbits the P (once per hover; the big one also once when it scrolls in) ---------- */
+// The ring keeps its drawn shape — thick at the ends, thin in front — and what travels round the
+// orbit is its tail (where it tapers into a gap) and a glint. logo/ring.json holds that shape,
+// measured from the artwork along the fitted ellipse: offset, width and opacity per angle, plus the
+// travelling part (pw, pa). At rest the original artwork is shown; the drawn ring takes over only
+// while it moves.
+const ORBIT_MS = 1800;
+let RING = null;
+fetch("logo/ring.json").then((r) => r.json()).then((d) => { RING = d; }).catch(() => {});
+
+function drawRing(cv, phi, glint) {
+  const R = RING, n = R.w.length, TAU = Math.PI * 2;
+  const size = Math.round(cv.clientWidth * Math.min(2, devicePixelRatio || 1));
+  if (!size) return;
+  if (cv.width !== size) cv.width = cv.height = size;
+  const g = cv.getContext("2d");
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalCompositeOperation = "source-over";
+  g.clearRect(0, 0, size, size);
+  const A = R.a * size, B = R.b * size, cx = R.cx * size, cy = R.cy * size, ct = Math.cos(R.th), st = Math.sin(R.th);
+  const at = (arr, f) => { f = ((f % n) + n) % n; const i = Math.floor(f), u = f - i; return arr[i] * (1 - u) + arr[(i + 1) % n] * u; };
+  const sh = phi / TAU * n;                          // the travelling part, shifted along the orbit
+  const pt = (t, o) => { const ex = (A + o) * Math.cos(t), ey = (B + o) * Math.sin(t); return [cx + ex * ct - ey * st, cy + ex * st + ey * ct]; };
+
+  // the band: outer edge round, inner edge back
+  // start where the band is thinnest, so the closing edge of the outline has no length
+  let k0 = 0;
+  for (let k = 1; k < n; k++) if (R.w[k] * at(R.pw, k - sh) < R.w[k0] * at(R.pw, k0 - sh)) k0 = k;
+  const inner = [];
+  g.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const k = (k0 + i) % n, t = k / n * TAU, o = R.off[k] * size, w = R.w[k] * size * at(R.pw, k - sh) / 2;
+    const p = pt(t, o + w);
+    if (i) g.lineTo(p[0], p[1]); else g.moveTo(p[0], p[1]);
+    inner.push(pt(t, o - w));
+  }
+  for (let i = inner.length - 1; i >= 0; i--) g.lineTo(inner[i][0], inner[i][1]);
+  g.closePath();
+  // brushed silver: the light comes from the upper right and stays put while the ring turns
+  const [s0, s1, s2] = R.shade, q = 1 / (s1 * s1 + s2 * s2);
+  const lin = g.createLinearGradient(-s0 * s1 * q * size, -s0 * s2 * q * size, (1 - s0) * s1 * q * size, (1 - s0) * s2 * q * size);
+  lin.addColorStop(0, "#000"); lin.addColorStop(1, "#fff");
+  g.fillStyle = lin;
+  g.fill();
+
+  // opacity and glint along the orbit: conic gradients drawn in the ellipse's own (circular) frame
+  g.setTransform(1, 0, 0, 1, cx, cy); g.rotate(R.th); g.scale(1, B / A);
+  const conic = (stop) => {
+    const cg = g.createConicGradient(0, 0, 0);
+    for (let k = 0; k <= n; k++) {
+      const t = k / n * TAU, o = R.off[k % n] * size;
+      let psi = Math.atan2((B + o) * A / B * Math.sin(t), (A + o) * Math.cos(t));
+      if (psi < 0) psi += TAU;
+      cg.addColorStop(k === n ? 1 : Math.min(psi / TAU, 1), stop(k % n, t));
+    }
+    return cg;
+  };
+  g.globalCompositeOperation = "destination-in";
+  g.fillStyle = conic((k) => `rgba(0,0,0,${Math.min(1, R.al[k] * at(R.pa, k - sh)).toFixed(3)})`);
+  g.fillRect(-2 * A, -2 * A, 4 * A, 4 * A);
+  if (glint > 0.01) {
+    g.globalCompositeOperation = "source-atop";
+    g.fillStyle = conic((k, t) => {
+      const d = ((t - phi - R.head + Math.PI) % TAU + TAU) % TAU - Math.PI;
+      return `rgba(255,255,255,${(glint * 0.55 * Math.exp(-d * d / 0.1)).toFixed(3)})`;
+    });
+    g.fillRect(-2 * A, -2 * A, 4 * A, 4 * A);
+  }
+}
+
+function orbit(el) {
+  if (el.classList.contains("spin") || still || !RING || !el.isConnected) return;
+  if (!el._cv) {
+    el._cv = ["far", "near"].map((side) => {
+      const c = document.createElement("canvas");
+      c.className = `orb ${side}`;
+      el.querySelector(`span.orb.${side}`).after(c);
+      return c;
+    });
+    el._art = el.querySelectorAll("span.orb");
+  }
+  el.classList.add("spin");
+  const t0 = performance.now();
+  const step = (now) => {
+    const u = Math.min(1, (now - t0) / ORBIT_MS);
+    const e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(2 - 2 * u, 3) / 2;   // ease in and out
+    const hand = Math.min(1, u / 0.07, (1 - u) / 0.07);                    // artwork <-> drawn ring
+    el._cv.forEach((c) => { drawRing(c, e * Math.PI * 2, Math.sin(Math.PI * u)); c.style.opacity = hand; });
+    el._art.forEach((s) => { s.style.opacity = 1 - hand; });
+    if (u < 1) return requestAnimationFrame(step);
+    el._cv.forEach((c) => { c.style.opacity = 0; });
+    el._art.forEach((s) => { s.style.opacity = ""; });
+    el.classList.remove("spin");
+  };
+  requestAnimationFrame(step);
+}
+
 document.querySelectorAll(".plogo").forEach((el) => {
-  const spin = () => { if (!still) el.classList.add("spin"); };
-  (el.closest("a") || el).addEventListener("pointerenter", spin);
-  el.addEventListener("click", spin);
-  el.addEventListener("animationend", (e) => { if (e.animationName === "orbit") el.classList.remove("spin"); });
+  (el.closest("a") || el).addEventListener("pointerenter", () => orbit(el));
+  el.addEventListener("click", () => orbit(el));
 });
 const bigLogo = document.querySelector(".ficon");
 if (bigLogo && "IntersectionObserver" in window) {
   const io = new IntersectionObserver(([en]) => {
-    if (en.isIntersecting) { setTimeout(() => !still && bigLogo.classList.add("spin"), 500); io.disconnect(); }
+    if (en.isIntersecting) { setTimeout(() => orbit(bigLogo), 500); io.disconnect(); }
   }, { threshold: 0.8 });
   io.observe(bigLogo);
 }

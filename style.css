@@ -342,16 +342,12 @@ section { scroll-margin-top: 52px; }
 }
 
 /* ---------- the logo: on hover the ring orbits the P (it passes in front of the stem and behind the bowl) ---------- */
-@property --phi { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
 .plogo { position: relative; display: inline-block; flex: none; border-radius: 22.6%; overflow: hidden; isolation: isolate; }
 .plogo > img, .plogo .orb, .plogo .orb img { position: absolute; inset: 0; width: 100%; height: 100%; }
 /* the ring's major axis splits it into the far half (under the P) and the near half (over it) */
 .plogo .far { clip-path: polygon(0 0, 100% 0, 100% 24.93%, 0 76.63%); }
-.plogo .near { clip-path: polygon(0 76.63%, 100% 24.93%, 100% 100%, 0 100%); }
-/* straighten the tilted ellipse into a circle, turn it, tilt it back: the ring slides along its own orbit */
-.plogo .orb img { transform-origin: 53.5% 48.97%; will-change: transform;
-  transform: rotate(-27.334deg) scaleY(.17437) rotate(var(--phi)) scaleY(5.7349) rotate(27.334deg); }
-.plogo > img:nth-of-type(2) { transition: filter .5s; }
-.plogo.spin { animation: orbit 1.5s cubic-bezier(.6, 0, .25, 1); }
-.plogo.spin > img:nth-of-type(2) { filter: brightness(1.15); }
-@keyframes orbit { to { --phi: 360deg; } }
+/* the near half reaches a hair past the axis so the two halves meet without a seam */
+.plogo .near { clip-path: polygon(0 75.9%, 100% 24.2%, 100% 100%, 0 100%); }
+.plogo canvas.orb { opacity: 0; pointer-events: none; }
+.plogo > img:nth-of-type(2) { transition: filter .6s; }
+.plogo.spin > img:nth-of-type(2) { filter: brightness(1.12); }
